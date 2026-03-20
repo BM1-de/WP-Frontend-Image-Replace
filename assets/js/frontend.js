@@ -1,0 +1,462 @@
+/**
+ * Frontend Image Replace — Frontend Script.
+ *
+ * Scans the page for WordPress media library images, adds hover overlays,
+ * and handles the upload + replacement flow.
+ */
+(function () {
+	'use strict';
+
+	// Don't run inside iframes (page builders, visual editors like LiveCanvas).
+	if (window !== window.top) return;
+
+	// Don't run if a page builder editor is active.
+	if (document.body && (
+		document.body.classList.contains('lc-editing') ||
+		document.body.classList.contains('elementor-editor-active') ||
+		document.body.classList.contains('fl-builder-edit') ||
+		document.body.classList.contains('ct-builder')
+	)) return;
+
+	// Don't run if URL contains editor parameters.
+	var params = new URLSearchParams(window.location.search);
+	if (params.has('lc_action_launch_editing') || params.has('elementor-preview') || params.has('ct_builder') || params.has('fl_builder') || params.has('brizy-edit')) return;
+
+	var FIR = {
+		images: new Map(),
+		overlay: null,
+		toolbar: null,
+		progressBar: null,
+		currentImage: null,
+		isUploading: false,
+
+		init: function () {
+			this.createOverlay();
+			this.createToolbar();
+			this.scanImages();
+			this.restoreScroll();
+		},
+
+		/**
+		 * Create the single floating overlay element.
+		 */
+		createOverlay: function () {
+			var overlay = document.createElement('div');
+			overlay.className = 'fir-overlay';
+			overlay.innerHTML =
+				'<div class="fir-overlay__content">' +
+					'<div class="fir-overlay__icon">' +
+						'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+							'<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>' +
+							'<circle cx="8.5" cy="8.5" r="1.5"/>' +
+							'<polyline points="21 15 16 10 5 21"/>' +
+						'</svg>' +
+					'</div>' +
+					'<div class="fir-overlay__label">' + firData.i18n.replaceImage + '</div>' +
+					'<div class="fir-progress" style="display:none;">' +
+						'<div class="fir-progress__bar"></div>' +
+					'</div>' +
+					'<div class="fir-overlay__status"></div>' +
+				'</div>';
+
+			var self = this;
+
+			overlay.addEventListener('mouseleave', function () {
+				if (!self.isUploading) {
+					self.hideOverlay();
+				}
+			});
+
+			overlay.addEventListener('click', function (e) {
+				e.preventDefault();
+				e.stopPropagation();
+				if (!self.isUploading && self.currentImage) {
+					// Check daily limit before opening file picker.
+					if (!firData.isPro && firData.remaining <= 0) {
+						self.showLimitReached();
+						return;
+					}
+					var attachmentId = self.images.get(self.currentImage);
+					if (attachmentId) {
+						self.handleReplace(self.currentImage, attachmentId);
+					}
+				}
+			});
+
+			document.body.appendChild(overlay);
+			this.overlay = overlay;
+			this.progressBar = overlay.querySelector('.fir-progress__bar');
+		},
+
+		/**
+		 * Create the toolbar notification bar.
+		 */
+		createToolbar: function () {
+			if (sessionStorage.getItem('fir_toolbar_dismissed')) {
+				return;
+			}
+
+			var toolbar = document.createElement('div');
+			toolbar.className = 'fir-toolbar';
+
+			var textHtml =
+				'<span class="fir-toolbar__text">' +
+					'<svg class="fir-toolbar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+					firData.i18n.toolbarText +
+				'</span>';
+
+			// Show remaining count for free users.
+			if (!firData.isPro) {
+				textHtml +=
+					'<span class="fir-toolbar__limit">' +
+						firData.remaining + ' ' + firData.i18n.remaining +
+						' &mdash; <a href="' + firData.upgradeUrl + '" target="_blank" style="color: #72aee6;">' + firData.i18n.upgradePro + '</a>' +
+					'</span>';
+			}
+
+			toolbar.innerHTML = textHtml +
+				'<button class="fir-toolbar__close" type="button" aria-label="Close">&times;</button>';
+
+			toolbar.querySelector('.fir-toolbar__close').addEventListener('click', function () {
+				toolbar.remove();
+				sessionStorage.setItem('fir_toolbar_dismissed', '1');
+			});
+
+			document.body.appendChild(toolbar);
+			this.toolbar = toolbar;
+		},
+
+		/**
+		 * Show limit reached message in the overlay.
+		 */
+		showLimitReached: function () {
+			this.overlay.classList.add('fir-overlay--error');
+			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.limitReached;
+			this.overlay.querySelector('.fir-overlay__status').innerHTML =
+				'<a href="' + firData.upgradeUrl + '" target="_blank" style="color: #fff; text-decoration: underline;">' +
+				firData.i18n.unlimitedPro + '</a>';
+
+			var self = this;
+			setTimeout(function () {
+				self.overlay.classList.remove('fir-overlay--error');
+				self.overlay.querySelector('.fir-overlay__status').textContent = '';
+				self.hideOverlay();
+			}, 4000);
+		},
+
+		/**
+		 * Scan the page for images and identify their attachment IDs.
+		 */
+		scanImages: function () {
+			var allImages = document.querySelectorAll('img');
+			var unknownUrls = {};
+			var self = this;
+
+			allImages.forEach(function (img) {
+				// Skip tiny images (icons, spacers, etc.).
+				if (img.naturalWidth > 0 && img.naturalWidth < 50) return;
+				if (img.naturalHeight > 0 && img.naturalHeight < 50) return;
+
+				// Skip plugin UI elements, admin bar, and wp-admin elements.
+				if (img.closest('.fir-overlay') || img.closest('.fir-toolbar')) return;
+				if (img.closest('#wpadminbar') || img.closest('#adminmenuwrap') || img.closest('#wpbody') || img.closest('#adminmenu')) return;
+
+				// Skip data URIs and SVGs.
+				var src = img.currentSrc || img.src;
+				if (!src || src.indexOf('data:') === 0 || src.indexOf('.svg') !== -1) return;
+
+				// Try to extract attachment ID from wp-image-{ID} class.
+				var match = img.className && img.className.match(/wp-image-(\d+)/);
+				if (match) {
+					self.registerImage(img, parseInt(match[1], 10));
+					return;
+				}
+
+				// Collect for batch resolution.
+				if (!unknownUrls[src]) {
+					unknownUrls[src] = [];
+				}
+				unknownUrls[src].push(img);
+			});
+
+			// Batch resolve unknown URLs.
+			var urlList = Object.keys(unknownUrls);
+			if (urlList.length > 0) {
+				this.resolveImages(unknownUrls, urlList);
+			}
+		},
+
+		/**
+		 * Batch resolve image URLs to attachment IDs via AJAX.
+		 */
+		resolveImages: function (urlMap, urlList) {
+			var formData = new FormData();
+			formData.append('action', 'fir_resolve_images');
+			formData.append('nonce', firData.nonce);
+			formData.append('token', firData.token);
+			formData.append('urls', JSON.stringify(urlList));
+
+			var self = this;
+
+			fetch(firData.ajaxUrl, { method: 'POST', body: formData })
+				.then(function (r) { return r.json(); })
+				.then(function (data) {
+					if (data.success && data.data) {
+						Object.keys(data.data).forEach(function (url) {
+							var id = data.data[url];
+							if (id && urlMap[url]) {
+								urlMap[url].forEach(function (img) {
+									self.registerImage(img, id);
+								});
+							}
+						});
+					}
+					self.updateToolbarCount();
+				})
+				.catch(function () {
+					// Silently fail — images without IDs just won't show the overlay.
+				});
+		},
+
+		/**
+		 * Register an image element with its attachment ID.
+		 */
+		registerImage: function (img, attachmentId) {
+			this.images.set(img, attachmentId);
+			this.addHoverListener(img);
+			this.updateToolbarCount();
+		},
+
+		/**
+		 * Add hover listener to an image to show the overlay.
+		 */
+		addHoverListener: function (img) {
+			var self = this;
+			img.addEventListener('mouseenter', function () {
+				if (!self.isUploading) {
+					self.showOverlay(img);
+				}
+			});
+			// Mark as replaceable with a subtle cursor change.
+			img.style.cursor = 'pointer';
+		},
+
+		/**
+		 * Show the overlay positioned over the given image.
+		 */
+		showOverlay: function (img) {
+			var rect = img.getBoundingClientRect();
+
+			// Don't show for very small rendered images.
+			if (rect.width < 40 || rect.height < 40) return;
+
+			this.overlay.style.top = rect.top + 'px';
+			this.overlay.style.left = rect.left + 'px';
+			this.overlay.style.width = rect.width + 'px';
+			this.overlay.style.height = rect.height + 'px';
+			this.overlay.classList.add('fir-overlay--visible');
+			this.overlay.classList.remove('fir-overlay--uploading', 'fir-overlay--success', 'fir-overlay--error');
+			this.overlay.querySelector('.fir-progress').style.display = 'none';
+			this.overlay.querySelector('.fir-overlay__status').textContent = '';
+			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.replaceImage;
+			this.currentImage = img;
+		},
+
+		/**
+		 * Hide the overlay.
+		 */
+		hideOverlay: function () {
+			this.overlay.classList.remove('fir-overlay--visible');
+			this.currentImage = null;
+		},
+
+		/**
+		 * Open file picker and start the replacement process.
+		 */
+		handleReplace: function (img, attachmentId) {
+			var input = document.createElement('input');
+			input.type = 'file';
+			input.accept = 'image/*';
+
+			var self = this;
+			input.addEventListener('change', function () {
+				if (input.files && input.files[0]) {
+					self.uploadAndReplace(img, attachmentId, input.files[0]);
+				}
+			});
+
+			input.click();
+		},
+
+		/**
+		 * Upload the new image and trigger the replacement.
+		 */
+		uploadAndReplace: function (img, attachmentId, file) {
+			this.isUploading = true;
+
+			// Update overlay to show uploading state.
+			var rect = img.getBoundingClientRect();
+			this.overlay.style.top = rect.top + 'px';
+			this.overlay.style.left = rect.left + 'px';
+			this.overlay.style.width = rect.width + 'px';
+			this.overlay.style.height = rect.height + 'px';
+			this.overlay.classList.add('fir-overlay--visible', 'fir-overlay--uploading');
+			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.uploading;
+			this.overlay.querySelector('.fir-progress').style.display = 'block';
+			this.progressBar.style.width = '0%';
+
+			// Get the specific src URL of the clicked image for targeted replacement.
+			var imageSrc = img.getAttribute('src') || img.currentSrc || '';
+
+			// Determine the occurrence index.
+			var occurrenceIndex = 0;
+			var self = this;
+			this.images.forEach(function (aid, imgEl) {
+				if (aid === attachmentId && imgEl !== img) {
+					if (img.compareDocumentPosition(imgEl) & Node.DOCUMENT_POSITION_PRECEDING) {
+						occurrenceIndex++;
+					}
+				}
+			});
+
+			var formData = new FormData();
+			formData.append('action', 'fir_replace_image');
+			formData.append('nonce', firData.nonce);
+			formData.append('token', firData.token);
+			formData.append('attachment_id', attachmentId);
+			formData.append('post_id', firData.postId || 0);
+			formData.append('image_src', imageSrc);
+			formData.append('occurrence_index', occurrenceIndex);
+			formData.append('file', file);
+
+			var xhr = new XMLHttpRequest();
+
+			xhr.upload.addEventListener('progress', function (e) {
+				if (e.lengthComputable) {
+					var percent = Math.round((e.loaded / e.total) * 100);
+					self.progressBar.style.width = percent + '%';
+				}
+			});
+
+			xhr.addEventListener('load', function () {
+				try {
+					var response = JSON.parse(xhr.responseText);
+					if (response.success) {
+						// Update remaining count.
+						if (!firData.isPro) {
+							firData.remaining = Math.max(0, firData.remaining - 1);
+						}
+						self.onSuccess();
+					} else {
+						var msg = response.data;
+						// Check if it's a limit error with upgrade URL.
+						if (typeof msg === 'object' && msg !== null) {
+							if (msg.limit && msg.upgrade_url) {
+								firData.remaining = 0;
+								self.isUploading = false;
+								self.overlay.classList.remove('fir-overlay--uploading');
+								self.showLimitReached();
+								return;
+							}
+							msg = msg.message || JSON.stringify(msg);
+						}
+						self.onError(msg || firData.i18n.error);
+					}
+				} catch (e) {
+					self.onError(firData.i18n.error);
+				}
+			});
+
+			xhr.addEventListener('error', function () {
+				self.onError('Network error');
+			});
+
+			xhr.open('POST', firData.ajaxUrl);
+			xhr.send(formData);
+		},
+
+		/**
+		 * Handle successful replacement.
+		 */
+		onSuccess: function () {
+			this.overlay.classList.remove('fir-overlay--uploading');
+			this.overlay.classList.add('fir-overlay--success');
+			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.success;
+			this.overlay.querySelector('.fir-progress').style.display = 'none';
+
+			// Save scroll position and reload.
+			sessionStorage.setItem('fir_scroll_y', String(window.scrollY));
+
+			// Preserve token in URL if present.
+			var reloadUrl = window.location.href;
+			setTimeout(function () {
+				window.location.href = reloadUrl;
+			}, 800);
+		},
+
+		/**
+		 * Handle replacement error.
+		 */
+		onError: function (message) {
+			this.isUploading = false;
+			this.overlay.classList.remove('fir-overlay--uploading');
+			this.overlay.classList.add('fir-overlay--error');
+			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.error;
+			this.overlay.querySelector('.fir-progress').style.display = 'none';
+			this.overlay.querySelector('.fir-overlay__status').textContent = message;
+
+			var self = this;
+			setTimeout(function () {
+				self.overlay.classList.remove('fir-overlay--error');
+				self.hideOverlay();
+			}, 3000);
+		},
+
+		/**
+		 * Restore scroll position after page reload.
+		 */
+		restoreScroll: function () {
+			var scrollY = sessionStorage.getItem('fir_scroll_y');
+			if (scrollY !== null) {
+				window.scrollTo(0, parseInt(scrollY, 10));
+				sessionStorage.removeItem('fir_scroll_y');
+			}
+		},
+
+		/**
+		 * Update the toolbar with the count of replaceable images.
+		 */
+		updateToolbarCount: function () {
+			if (!this.toolbar) return;
+			var count = this.images.size;
+			var countEl = this.toolbar.querySelector('.fir-toolbar__count');
+			if (!countEl) {
+				countEl = document.createElement('span');
+				countEl.className = 'fir-toolbar__count';
+				this.toolbar.querySelector('.fir-toolbar__text').appendChild(countEl);
+			}
+			countEl.textContent = ' (' + count + ')';
+		}
+	};
+
+	// Initialize when DOM is ready.
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', function () { FIR.init(); });
+	} else {
+		FIR.init();
+	}
+
+	// Update overlay position on scroll.
+	window.addEventListener('scroll', function () {
+		if (FIR.overlay && FIR.overlay.classList.contains('fir-overlay--visible') && !FIR.isUploading) {
+			FIR.hideOverlay();
+		}
+	}, { passive: true });
+
+	// Update overlay position on resize.
+	window.addEventListener('resize', function () {
+		if (FIR.overlay && FIR.overlay.classList.contains('fir-overlay--visible') && !FIR.isUploading) {
+			FIR.hideOverlay();
+		}
+	});
+})();

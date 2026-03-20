@@ -1,0 +1,12 @@
+# Compiled translation files (generated from .po)
+*.mo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
