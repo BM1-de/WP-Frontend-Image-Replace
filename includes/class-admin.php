@@ -52,6 +52,34 @@ class FIR_Admin {
 			return;
 		}
 
+		// Deactivate license key.
+		if ( isset( $_POST['fir_deactivate_license'] ) && check_admin_referer( 'fir_license_action' ) ) {
+			if ( function_exists( 'fir_fs' ) ) {
+				fir_fs()->delete_account_event();
+			}
+			wp_safe_redirect( admin_url( 'options-general.php?page=fir-settings&license_deactivated=1' ) );
+			exit;
+		}
+
+		// Activate license key.
+		if ( isset( $_POST['fir_activate_license'] ) && check_admin_referer( 'fir_license_action' ) ) {
+			$license_key = sanitize_text_field( $_POST['fir_license_key'] );
+			if ( ! empty( $license_key ) && function_exists( 'fir_fs' ) ) {
+				try {
+					$result = fir_fs()->activate_migrated_license( $license_key );
+					if ( is_object( $result ) && isset( $result->error ) ) {
+						set_transient( 'fir_license_error', $result->error, 60 );
+					} else {
+						set_transient( 'fir_license_success', true, 60 );
+					}
+				} catch ( Exception $e ) {
+					set_transient( 'fir_license_error', $e->getMessage(), 60 );
+				}
+			}
+			wp_safe_redirect( admin_url( 'options-general.php?page=fir-settings' ) );
+			exit;
+		}
+
 		// Generate token (Pro only).
 		if ( isset( $_POST['fir_generate_token'] ) && check_admin_referer( 'fir_token_action' ) ) {
 			if ( ! Frontend_Image_Replace::is_pro() ) {
@@ -296,6 +324,62 @@ class FIR_Admin {
 				</div>
 			<?php endif; ?>
 
+			<!-- License -->
+			<hr>
+			<?php if ( ! $is_pro ) : ?>
+			<h2><?php esc_html_e( 'Activate Pro License', 'frontend-image-replace' ); ?></h2>
+
+			<?php if ( get_transient( 'fir_license_success' ) ) : ?>
+				<?php delete_transient( 'fir_license_success' ); ?>
+				<div class="notice notice-success inline" style="margin: 10px 0;">
+					<p><?php esc_html_e( 'License activated successfully! Please reload the page.', 'frontend-image-replace' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<?php
+			$license_error = get_transient( 'fir_license_error' );
+			if ( $license_error ) :
+				delete_transient( 'fir_license_error' );
+			?>
+				<div class="notice notice-error inline" style="margin: 10px 0;">
+					<p><?php echo esc_html( $license_error ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<p class="description">
+				<?php esc_html_e( 'Already have a license key? Enter it below to activate Pro features.', 'frontend-image-replace' ); ?>
+			</p>
+			<form method="post" style="margin-top: 12px;">
+				<?php wp_nonce_field( 'fir_license_action' ); ?>
+				<div style="display: flex; gap: 8px; align-items: center;">
+					<input type="text" name="fir_license_key" placeholder="sk_..." style="width: 350px;" required>
+					<button type="submit" name="fir_activate_license" value="1" class="button button-primary">
+						<?php esc_html_e( 'Activate License', 'frontend-image-replace' ); ?>
+					</button>
+				</div>
+			</form>
+
+			<?php else : ?>
+			<h2><?php esc_html_e( 'License', 'frontend-image-replace' ); ?></h2>
+
+			<?php if ( isset( $_GET['license_deactivated'] ) ) : ?>
+				<div class="notice notice-success inline" style="margin: 10px 0;">
+					<p><?php esc_html_e( 'License deactivated.', 'frontend-image-replace' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<p>
+				<span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+				<?php esc_html_e( 'Pro license active.', 'frontend-image-replace' ); ?>
+			</p>
+			<form method="post" style="margin-top: 8px;">
+				<?php wp_nonce_field( 'fir_license_action' ); ?>
+				<button type="submit" name="fir_deactivate_license" value="1" class="button button-link" onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to deactivate the license?', 'frontend-image-replace' ); ?>');">
+					<?php esc_html_e( 'Deactivate License', 'frontend-image-replace' ); ?>
+				</button>
+			</form>
+			<?php endif; ?>
+
 			<hr>
 
 			<!-- Info -->
@@ -327,7 +411,7 @@ class FIR_Admin {
 					<hr style="border: none; border-top: 1px solid #e0e0e0; margin: 12px 0;" />
 					<p style="margin: 8px 0; font-size: 13px;">
 						<span class="dashicons dashicons-admin-site" style="font-size: 14px; width: 14px; margin-right: 4px; color: #646970;"></span>
-						<a href="https://bm1.de" target="_blank" rel="noopener noreferrer">bm1.de</a>
+						<a href="https://wp-frontend-image-replace.com" target="_blank" rel="noopener noreferrer">wp-frontend-image-replace.com</a>
 					</p>
 					<hr style="border: none; border-top: 1px solid #e0e0e0; margin: 12px 0;" />
 					<p style="margin: 0 0 12px; font-size: 12px; color: #646970;">

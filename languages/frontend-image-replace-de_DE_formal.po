@@ -234,3 +234,39 @@ msgstr "Nur Bilddateien (JPG, PNG, GIF, WebP, AVIF) sind erlaubt."
 #: includes/class-replacer.php
 msgid "Upload failed. Please try again."
 msgstr "Upload fehlgeschlagen. Bitte versuchen Sie es erneut."
+
+#: includes/class-admin.php
+msgid "Activate Pro License"
+msgstr "Pro-Lizenz aktivieren"
+
+#: includes/class-admin.php
+msgid "License activated successfully! Please reload the page."
+msgstr "Lizenz erfolgreich aktiviert! Bitte laden Sie die Seite neu."
+
+#: includes/class-admin.php
+msgid "Already have a license key? Enter it below to activate Pro features."
+msgstr "Sie haben bereits einen Lizenzschlüssel? Geben Sie ihn unten ein, um Pro-Funktionen zu aktivieren."
+
+#: includes/class-admin.php
+msgid "Activate License"
+msgstr "Lizenz aktivieren"
+
+#: includes/class-admin.php
+msgid "License"
+msgstr "Lizenz"
+
+#: includes/class-admin.php
+msgid "Pro license active."
+msgstr "Pro-Lizenz aktiv."
+
+#: includes/class-admin.php
+msgid "License deactivated."
+msgstr "Lizenz deaktiviert."
+
+#: includes/class-admin.php
+msgid "Deactivate License"
+msgstr "Lizenz deaktivieren"
+
+#: includes/class-admin.php
+msgid "Are you sure you want to deactivate the license?"
+msgstr "Sind Sie sicher, dass Sie die Lizenz deaktivieren möchten?"
