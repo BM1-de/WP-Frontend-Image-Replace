@@ -1,0 +1,21 @@
+name: Deploy to Freemius
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Freemius
+        uses: freemius/deploy-to-freemius@v1
+        with:
+          developer-id: 13073
+          plugin-id: 26225
+          developer-secret-key: ${{ secrets.FREEMIUS_SECRET_KEY }}
+          plugin-slug: fir
+          zip-path: .
