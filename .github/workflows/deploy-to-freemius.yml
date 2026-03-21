@@ -1,4 +1,4 @@
-name: Deploy to Freemius
+name: Release Plugin
 
 on:
   push:
@@ -6,16 +6,25 @@ on:
       - 'v*'
 
 jobs:
-  deploy:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Freemius
-        uses: freemius/deploy-to-freemius@v1
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create plugin ZIP
+        run: |
+          mkdir -p /tmp/frontend-image-replace
+          rsync -a --exclude='.git' --exclude='.github' ./ /tmp/frontend-image-replace/
+          cd /tmp && zip -r frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip frontend-image-replace/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          developer-id: 13073
-          plugin-id: 26225
-          developer-secret-key: ${{ secrets.FREEMIUS_SECRET_KEY }}
-          plugin-slug: fir
-          zip-path: .
+          files: /tmp/frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip
+          generate_release_notes: true
