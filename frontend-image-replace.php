@@ -61,6 +61,17 @@ if ( ! function_exists( 'fir_fs' ) ) {
 
 	fir_fs();
 	do_action( 'fir_fs_loaded' );
+
+	fir_fs()->add_action( 'after_uninstall', 'fir_cleanup' );
+}
+
+function fir_cleanup() {
+	delete_option( 'fir_enabled' );
+	delete_option( 'fir_access_token' );
+	delete_option( 'fir_token_expiry' );
+
+	global $wpdb;
+	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_fir_daily_count_%' OR option_name LIKE '_transient_timeout_fir_daily_count_%'" );
 }
 
 require_once FIR_PLUGIN_DIR . 'includes/class-admin.php';
