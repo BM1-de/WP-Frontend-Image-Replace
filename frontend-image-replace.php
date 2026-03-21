@@ -9,7 +9,7 @@
  * Plugin Name:       Frontend Image Replace
  * Plugin URI:        https://wp-frontend-image-replace.com
  * Description:       Upload new images to the WordPress media library directly from the frontend and swap them into your content. Perfect for replacing demo/placeholder images during development.
- * Version:           1.0.7
+ * Version:           1.0.8
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            Baumgärtner Marketing GmbH
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FIR_VERSION', '1.0.7' );
+define( 'FIR_VERSION', '1.0.8' );
 define( 'FIR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FIR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'FIR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

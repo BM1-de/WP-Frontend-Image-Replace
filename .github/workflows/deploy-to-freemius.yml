@@ -25,12 +25,19 @@ jobs:
           find /tmp/frontend-image-replace -name '*.patch' | xargs rm -f 2>/dev/null || true
           cd /tmp && zip -r frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip frontend-image-replace/
           cp /tmp/frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip ${{ github.workspace }}/frontend-image-replace.zip
+          echo "ZIP created: $(ls -lh ${{ github.workspace }}/frontend-image-replace.zip)"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: /tmp/frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip
           generate_release_notes: true
+
+      - name: Verify ZIP before Freemius deploy
+        run: |
+          echo "File exists: $(test -f frontend-image-replace.zip && echo yes || echo no)"
+          echo "File size: $(du -h frontend-image-replace.zip | cut -f1)"
+          echo "Version: ${{ steps.version.outputs.VERSION }}"
 
       - name: Deploy to Freemius
         uses: buttonizer/freemius-deploy@v0.1.3
