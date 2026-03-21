@@ -2,7 +2,7 @@
 Contributors: phillipbaumgaertner
 Tags: images, replace, frontend, media, development
 Requires at least: 5.4
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -34,7 +34,7 @@ Perfect for:
 * Works with any theme — no template modifications needed
 * Uploads new images to the WordPress media library (the original stays untouched)
 * Updates all references in post content
-* Supports Gutenberg block editor and Classic editor
+* Supports Gutenberg block editor, Classic editor, and LiveCanvas
 * Lightweight — no jQuery dependency, minimal footprint
 * Translation-ready
 
