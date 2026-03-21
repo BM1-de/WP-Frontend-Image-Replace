@@ -52,8 +52,8 @@ msgid "Free Plan:"
 msgstr "Free-Plan:"
 
 #: includes/class-admin.php
-msgid "Limited to %d image replacements per day. %s for unlimited replacements."
-msgstr "Limitiert auf %d Bildersetzungen pro Tag. %s für unbegrenzte Ersetzungen."
+msgid "Limited to %1$d image replacements per day. %2$s for unlimited replacements."
+msgstr "Limitiert auf %1$d Bildersetzungen pro Tag. %2$s für unbegrenzte Ersetzungen."
 
 #: includes/class-admin.php
 msgid "Upgrade to Pro"

@@ -63,7 +63,7 @@ class FIR_Admin {
 
 		// Activate license key.
 		if ( isset( $_POST['fir_activate_license'] ) && check_admin_referer( 'fir_license_action' ) ) {
-			$license_key = sanitize_text_field( $_POST['fir_license_key'] );
+			$license_key = isset( $_POST['fir_license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['fir_license_key'] ) ) : '';
 			if ( ! empty( $license_key ) && function_exists( 'fir_fs' ) ) {
 				try {
 					$result = fir_fs()->activate_migrated_license( $license_key );
@@ -201,7 +201,7 @@ class FIR_Admin {
 						<?php
 						printf(
 							/* translators: %d: daily limit, %s: upgrade link */
-							esc_html__( 'Limited to %d image replacements per day. %s for unlimited replacements.', 'frontend-image-replace' ),
+							esc_html__( 'Limited to %1$d image replacements per day. %2$s for unlimited replacements.', 'frontend-image-replace' ),
 							3,
 							'<a href="' . esc_url( fir_fs()->get_upgrade_url() ) . '">' . esc_html__( 'Upgrade to Pro', 'frontend-image-replace' ) . '</a>'
 						);
@@ -429,8 +429,10 @@ class FIR_Admin {
 		</div>
 
 		<!-- Zammad Feedback Form -->
-		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-		<script id="zammad_form_script" src="https://mail.bm1.de/assets/form/form.js"></script>
+		<?php
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'zammad-form', 'https://mail.bm1.de/assets/form/form.js', array( 'jquery' ), '1.0', true );
+		?>
 		<script>
 		jQuery(function($) {
 			$('#zammad-feedback-form').ZammadForm({

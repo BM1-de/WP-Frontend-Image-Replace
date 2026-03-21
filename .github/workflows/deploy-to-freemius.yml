@@ -20,7 +20,8 @@ jobs:
       - name: Create plugin ZIP
         run: |
           mkdir -p /tmp/frontend-image-replace
-          rsync -a --exclude='.git' --exclude='.github' ./ /tmp/frontend-image-replace/
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.gitignore' --exclude='.gitattributes' --exclude='.editorconfig' --exclude='.example.env' ./ /tmp/frontend-image-replace/
+          find /tmp/frontend-image-replace -name '.gitignore' -o -name '.gitattributes' -o -name '.editorconfig' -o -name '.example.env' | xargs rm -f 2>/dev/null || true
           cd /tmp && zip -r frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip frontend-image-replace/
 
       - name: Create GitHub Release
