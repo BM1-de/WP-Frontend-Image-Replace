@@ -1,4 +1,4 @@
-name: Release & Deploy to Freemius
+name: Release Plugin
 
 on:
   push:
@@ -30,44 +30,3 @@ jobs:
         with:
           files: /tmp/frontend-image-replace-${{ steps.version.outputs.VERSION }}.zip
           generate_release_notes: true
-
-      - name: Deploy to Freemius
-        run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
-          ZIP_PATH="/tmp/frontend-image-replace-${VERSION}.zip"
-
-          echo "Deploying v${VERSION} to Freemius..."
-
-          git clone --depth 1 https://github.com/Freemius/freemius-php-sdk.git /tmp/freemius-sdk
-
-          php -r "
-          require_once '/tmp/freemius-sdk/freemius/FreemiusBase.php';
-          require_once '/tmp/freemius-sdk/freemius/Freemius.php';
-
-          \$api = new Freemius_Api('developer', 13073, 'pk_3db1f792d77e8537a040628bc671d', getenv('SECRET_KEY'), false);
-
-          \$result = \$api->Api('plugins/26225/tags.json', 'POST', array(
-              'add_contributor' => false,
-          ), array(
-              'file' => '${ZIP_PATH}',
-          ));
-
-          echo \"API Response:\n\";
-          print_r(\$result);
-
-          if (isset(\$result->error)) {
-              echo \"\n::error::Freemius deployment failed: \" . \$result->error->message . \"\n\";
-              exit(1);
-          }
-
-          if (isset(\$result->id)) {
-              echo \"\nSuccessfully deployed v${VERSION} (tag ID: \" . \$result->id . \")\n\";
-
-              \$release = \$api->Api('plugins/26225/tags/' . \$result->id . '.json', 'PUT', array(
-                  'release_mode' => 'pending',
-              ));
-              echo \"Release mode set to pending\n\";
-          }
-          "
-        env:
-          SECRET_KEY: ${{ secrets.FREEMIUS_SECRET_KEY }}
