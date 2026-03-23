@@ -52,6 +52,12 @@ class FIR_Frontend {
 		$remaining = Frontend_Image_Replace::get_remaining_today();
 		$is_pro    = Frontend_Image_Replace::is_pro();
 
+		$logo_url = '';
+		$custom_logo_id = get_theme_mod( 'custom_logo' );
+		if ( $custom_logo_id ) {
+			$logo_url = wp_get_attachment_url( $custom_logo_id );
+		}
+
 		wp_localize_script( 'fir-frontend', 'firData', array(
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'nonce'      => wp_create_nonce( 'fir_nonce' ),
@@ -59,6 +65,7 @@ class FIR_Frontend {
 			'postId'     => get_queried_object_id(),
 			'remaining'  => $remaining,
 			'isPro'      => $is_pro,
+			'logoUrl'    => $logo_url,
 			'upgradeUrl' => $is_pro ? '' : fir_fs()->get_upgrade_url(),
 			'i18n'       => array(
 				'replaceImage'  => __( 'Replace Image', 'frontend-image-replace' ),

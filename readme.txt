@@ -4,7 +4,7 @@ Tags: images, replace, frontend, media, development
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,6 +91,10 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 
 == Changelog ==
 
+= 1.1.1 =
+* Exclude the site logo from image replacement
+* Added fir-no-replace CSS class to exclude arbitrary images
+
 = 1.1.0 =
 * Added image replacement activity log (Tools > Image Replace Log)
 * Fixed image replacement for non-logged-in users when globally enabled
@@ -104,6 +108,9 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 * Rate limiting and security hardening
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Site logo is now excluded from replacement. Use fir-no-replace class to exclude other images.
 
 = 1.1.0 =
 New activity log to track all image replacements. Bug fix for non-logged-in users.

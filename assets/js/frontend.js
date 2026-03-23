@@ -161,9 +161,15 @@
 				if (img.closest('.fir-overlay') || img.closest('.fir-toolbar')) return;
 				if (img.closest('#wpadminbar') || img.closest('#adminmenuwrap') || img.closest('#wpbody') || img.closest('#adminmenu')) return;
 
+				// Skip images excluded via fir-no-replace class.
+				if (img.classList.contains('fir-no-replace') || img.closest('.fir-no-replace')) return;
+
 				// Skip data URIs and SVGs.
 				var src = img.currentSrc || img.src;
 				if (!src || src.indexOf('data:') === 0 || src.indexOf('.svg') !== -1) return;
+
+				// Skip the site logo.
+				if (firData.logoUrl && src.indexOf(firData.logoUrl.replace(/^https?:\/\/[^/]+/, '')) !== -1) return;
 
 				// Try to extract attachment ID from wp-image-{ID} class.
 				var match = img.className && img.className.match(/wp-image-(\d+)/);
