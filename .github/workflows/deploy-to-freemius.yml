@@ -39,7 +39,7 @@ jobs:
         with:
           file_name: frontend-image-replace.zip
           version: ${{ steps.version.outputs.VERSION }}
-          release_mode: pending
+          release_mode: released
         env:
           DEV_ID: ${{ secrets.FREEMIUS_DEV_ID }}
           PUBLIC_KEY: ${{ secrets.FREEMIUS_PUBLIC_KEY }}
