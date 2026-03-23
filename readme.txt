@@ -4,7 +4,7 @@ Tags: images, replace, frontend, media, development
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,7 @@ Perfect for:
 
 * Unlimited image replacements
 * Guest access via shareable temporary links (with expiry)
+* Activity log for all image replacements (Tools > Image Replace Log)
 * Priority support
 
 == Installation ==
@@ -86,8 +87,14 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 
 1. Hover overlay on a replaceable image
 2. Settings page with enable toggle and access link management
+3. Activity log showing all image replacements (Pro)
 
 == Changelog ==
+
+= 1.1.0 =
+* Added image replacement activity log (Tools > Image Replace Log)
+* Fixed image replacement for non-logged-in users when globally enabled
+* Added German translations for log page
 
 = 1.0.0 =
 * First stable release
@@ -97,6 +104,9 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 * Rate limiting and security hardening
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+New activity log to track all image replacements. Bug fix for non-logged-in users.
 
 = 1.0.0 =
 First stable release with Free and Pro plans.

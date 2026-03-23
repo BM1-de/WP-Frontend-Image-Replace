@@ -9,7 +9,7 @@
  * Plugin Name:       Frontend Image Replace
  * Plugin URI:        https://wp-frontend-image-replace.com
  * Description:       Upload new images to the WordPress media library directly from the frontend and swap them into your content. Perfect for replacing demo/placeholder images during development.
- * Version:           1.0.9
+ * Version:           1.1.0
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            Baumgärtner Marketing GmbH
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FIR_VERSION', '1.0.9' );
+define( 'FIR_VERSION', '1.1.0' );
 define( 'FIR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FIR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'FIR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -72,8 +72,11 @@ function fir_cleanup() {
 
 	global $wpdb;
 	$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_fir_daily_count_%' OR option_name LIKE '_transient_timeout_fir_daily_count_%'" );
+
+	FIR_Logger::drop_table();
 }
 
+require_once FIR_PLUGIN_DIR . 'includes/class-logger.php';
 require_once FIR_PLUGIN_DIR . 'includes/class-admin.php';
 require_once FIR_PLUGIN_DIR . 'includes/class-frontend.php';
 require_once FIR_PLUGIN_DIR . 'includes/class-replacer.php';
@@ -209,6 +212,7 @@ final class Frontend_Image_Replace {
 
 register_activation_hook( __FILE__, function () {
 	add_option( 'fir_enabled', '0' );
+	FIR_Logger::create_table();
 } );
 
 add_action( 'plugins_loaded', array( 'Frontend_Image_Replace', 'instance' ) );

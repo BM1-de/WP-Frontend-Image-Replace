@@ -17,7 +17,7 @@ msgstr ""
 
 #: includes/class-admin.php
 msgid "Frontend Image Replace"
-msgstr "Frontend Bild ersetzen"
+msgstr "Frontend Image Replace"
 
 #: includes/class-admin.php
 msgid "Settings"
@@ -270,3 +270,57 @@ msgstr "Lizenz deaktivieren"
 #: includes/class-admin.php
 msgid "Are you sure you want to deactivate the license?"
 msgstr "Sind Sie sicher, dass Sie die Lizenz deaktivieren möchten?"
+
+#: includes/class-admin.php
+msgid "Frontend Image Replace Log"
+msgstr "Frontend Image Replace – Protokoll"
+
+#: includes/class-admin.php
+msgid "Image Replace Log"
+msgstr "Bild-ersetzen-Protokoll"
+
+#: includes/class-admin.php
+msgid "Log cleared."
+msgstr "Protokoll geleert."
+
+#: includes/class-admin.php
+msgid "%d entry removed."
+msgid_plural "%d entries removed."
+msgstr[0] "%d Eintrag entfernt."
+msgstr[1] "%d Einträge entfernt."
+
+#: includes/class-log-list-table.php
+msgid "Date"
+msgstr "Datum"
+
+#: includes/class-log-list-table.php
+msgid "Page"
+msgstr "Seite"
+
+#: includes/class-log-list-table.php
+msgid "Old Image"
+msgstr "Altes Bild"
+
+#: includes/class-log-list-table.php
+msgid "New Image"
+msgstr "Neues Bild"
+
+#: includes/class-log-list-table.php
+msgid "User"
+msgstr "Benutzer"
+
+#: includes/class-log-list-table.php
+msgid "(no title)"
+msgstr "(kein Titel)"
+
+#: includes/class-log-list-table.php
+msgid "Remove selected"
+msgstr "Ausgewählte entfernen"
+
+#: includes/class-log-list-table.php
+msgid "Clear log"
+msgstr "Protokoll leeren"
+
+#: includes/class-log-list-table.php
+msgid "Remove all log entries?"
+msgstr "Alle Protokolleinträge entfernen?"

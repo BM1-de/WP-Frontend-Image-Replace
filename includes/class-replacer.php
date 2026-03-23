@@ -34,6 +34,11 @@ class FIR_Replacer {
 			return true;
 		}
 
+		// Allow access when globally enabled.
+		if ( Frontend_Image_Replace::is_enabled() ) {
+			return true;
+		}
+
 		// Check token from POST data (Pro only).
 		if ( ! Frontend_Image_Replace::is_pro() ) {
 			return false;
@@ -62,12 +67,14 @@ class FIR_Replacer {
 	 */
 	public function handle_replace() {
 		if ( ! $this->verify_access() ) {
+			FIR_Logger::debug( 'Replace rejected: unauthorized' );
 			wp_send_json_error( __( 'Unauthorized.', 'frontend-image-replace' ), 403 );
 		}
 
 		// Check daily limit (Free: 3/day).
 		$remaining = Frontend_Image_Replace::get_remaining_today();
 		if ( $remaining === 0 ) {
+			FIR_Logger::debug( 'Replace rejected: daily limit reached' );
 			wp_send_json_error( array(
 				'message'     => __( 'Daily limit reached. Upgrade to Pro for unlimited replacements.', 'frontend-image-replace' ),
 				'upgrade_url' => fir_fs()->get_upgrade_url(),
@@ -97,6 +104,7 @@ class FIR_Replacer {
 		$ip_key = 'fir_rate_' . md5( $_SERVER['REMOTE_ADDR'] ?? 'unknown' );
 		$count  = (int) get_transient( $ip_key );
 		if ( $count >= 20 ) {
+			FIR_Logger::debug( 'Replace rejected: rate limit exceeded' );
 			wp_send_json_error( __( 'Too many uploads. Please wait a moment.', 'frontend-image-replace' ), 429 );
 		}
 		set_transient( $ip_key, $count + 1, MINUTE_IN_SECONDS );
@@ -123,6 +131,7 @@ class FIR_Replacer {
 		$upload = wp_handle_upload( $_FILES['file'], array( 'test_form' => false ) );
 
 		if ( isset( $upload['error'] ) ) {
+			FIR_Logger::error( 'Upload failed', array( 'error' => $upload['error'] ) );
 			wp_send_json_error( __( 'Upload failed. Please try again.', 'frontend-image-replace' ) );
 		}
 
@@ -137,6 +146,7 @@ class FIR_Replacer {
 		$new_attachment_id = wp_insert_attachment( $new_attachment, $upload['file'] );
 
 		if ( is_wp_error( $new_attachment_id ) ) {
+			FIR_Logger::error( 'Attachment creation failed', array( 'error' => $new_attachment_id->get_error_message() ) );
 			wp_delete_file( $upload['file'] );
 			wp_send_json_error( $new_attachment_id->get_error_message() );
 		}
@@ -150,6 +160,20 @@ class FIR_Replacer {
 
 		// Replace only the ONE clicked image in the specific post.
 		$this->replace_single_occurrence( $post_id, $old_attachment_id, $new_attachment_id, $image_src, $new_url, $occurrence_index );
+
+		// Log the replacement.
+		FIR_Logger::log_replacement( array(
+			'post_id'           => $post_id,
+			'post_title'        => get_the_title( $post_id ),
+			'old_attachment_id' => $old_attachment_id,
+			'new_attachment_id' => $new_attachment_id,
+			'old_url'           => $image_src,
+			'new_url'           => $new_url,
+			'user_info'         => is_user_logged_in()
+				? wp_get_current_user()->user_login
+				: 'Token (' . substr( md5( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ), 0, 8 ) . ')',
+		) );
+		FIR_Logger::debug( 'Image replaced', array( 'post_id' => $post_id, 'old_id' => $old_attachment_id, 'new_id' => $new_attachment_id ) );
 
 		// Increment daily counter for free users.
 		Frontend_Image_Replace::increment_daily_count();

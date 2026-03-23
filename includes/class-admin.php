@@ -13,8 +13,10 @@ class FIR_Admin {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
+		add_action( 'admin_menu', array( $this, 'add_log_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_init', array( $this, 'handle_actions' ) );
+		add_action( 'admin_init', array( $this, 'handle_log_actions' ) );
 		add_filter( 'plugin_action_links_' . FIR_PLUGIN_BASENAME, array( $this, 'add_settings_link' ) );
 	}
 
@@ -502,6 +504,89 @@ class FIR_Admin {
 			}, true);
 		});
 		</script>
+		<?php
+	}
+
+	/**
+	 * Register the log page under Tools.
+	 */
+	public function add_log_page() {
+		if ( ! Frontend_Image_Replace::is_pro() ) {
+			return;
+		}
+
+		add_management_page(
+			__( 'Frontend Image Replace Log', 'frontend-image-replace' ),
+			__( 'Image Replace Log', 'frontend-image-replace' ),
+			'manage_options',
+			'fir-log',
+			array( $this, 'render_log_page' )
+		);
+	}
+
+	/**
+	 * Handle log page actions (clear all, bulk remove).
+	 */
+	public function handle_log_actions() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// Clear entire log.
+		if ( isset( $_POST['fir_clear_log'] ) && check_admin_referer( 'bulk-fir_log_entries' ) ) {
+			FIR_Logger::clear_log();
+			wp_safe_redirect( admin_url( 'tools.php?page=fir-log&cleared=1' ) );
+			exit;
+		}
+
+		// Bulk remove selected entries.
+		$action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
+		if ( 'remove' === $action && ! empty( $_POST['log_ids'] ) && check_admin_referer( 'bulk-fir_log_entries' ) ) {
+			$ids = array_map( 'absint', $_POST['log_ids'] );
+			FIR_Logger::delete_entries( $ids );
+			wp_safe_redirect( admin_url( 'tools.php?page=fir-log&removed=' . count( $ids ) ) );
+			exit;
+		}
+	}
+
+	/**
+	 * Render the log page.
+	 */
+	public function render_log_page() {
+		require_once FIR_PLUGIN_DIR . 'includes/class-log-list-table.php';
+
+		$table = new FIR_Log_List_Table();
+		$table->prepare_items();
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Frontend Image Replace Log', 'frontend-image-replace' ); ?></h1>
+
+			<?php if ( isset( $_GET['cleared'] ) ) : ?>
+				<div class="notice notice-success is-dismissible">
+					<p><?php esc_html_e( 'Log cleared.', 'frontend-image-replace' ); ?></p>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( isset( $_GET['removed'] ) ) : ?>
+				<div class="notice notice-success is-dismissible">
+					<p>
+						<?php
+						printf(
+							/* translators: %d: number of removed entries */
+							esc_html( _n( '%d entry removed.', '%d entries removed.', absint( $_GET['removed'] ), 'frontend-image-replace' ) ),
+							absint( $_GET['removed'] )
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+
+			<form method="post">
+				<?php
+				$table->display();
+				?>
+			</form>
+		</div>
 		<?php
 	}
 }

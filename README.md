@@ -16,6 +16,7 @@ WordPress plugin to replace images directly from the frontend. Upload a new imag
 ### Pro
 - Unlimited image replacements
 - Guest access via temporary shareable links (with expiry)
+- Activity log for all image replacements (Tools > Image Replace Log)
 - Priority support
 
 ## Installation
