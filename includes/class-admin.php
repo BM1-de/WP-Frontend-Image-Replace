@@ -299,9 +299,9 @@ class BM1FIR_Admin {
 				<div class="notice notice-warning inline" style="margin: 15px 0;">
 					<p>
 						<?php
+						$upgrade_url = function_exists( 'bm1_fs' ) ? bm1_fs()->get_upgrade_url() : 'https://wp-frontend-image-replace.com';
 						printf(
 							/* translators: %s: upgrade link */
-							$upgrade_url = function_exists( 'bm1_fs' ) ? bm1_fs()->get_upgrade_url() : 'https://wp-frontend-image-replace.com';
 							esc_html__( 'Guest access links are a Pro feature. %s to share temporary image replace links with clients and team members.', 'bm1-frontend-image-replace' ),
 							'<a href="' . esc_url( $upgrade_url ) . '"><strong>' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</strong></a>'
 						);
