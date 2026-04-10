@@ -42,21 +42,21 @@
 		 */
 		createOverlay: function () {
 			var overlay = document.createElement('div');
-			overlay.className = 'fir-overlay';
+			overlay.className = 'bm1fir-overlay';
 			overlay.innerHTML =
-				'<div class="fir-overlay__content">' +
-					'<div class="fir-overlay__icon">' +
+				'<div class="bm1fir-overlay__content">' +
+					'<div class="bm1fir-overlay__icon">' +
 						'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
 							'<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>' +
 							'<circle cx="8.5" cy="8.5" r="1.5"/>' +
 							'<polyline points="21 15 16 10 5 21"/>' +
 						'</svg>' +
 					'</div>' +
-					'<div class="fir-overlay__label">' + firData.i18n.replaceImage + '</div>' +
-					'<div class="fir-progress" style="display:none;">' +
-						'<div class="fir-progress__bar"></div>' +
+					'<div class="bm1fir-overlay__label">' + bm1firData.i18n.replaceImage + '</div>' +
+					'<div class="bm1fir-progress" style="display:none;">' +
+						'<div class="bm1fir-progress__bar"></div>' +
 					'</div>' +
-					'<div class="fir-overlay__status"></div>' +
+					'<div class="bm1fir-overlay__status"></div>' +
 				'</div>';
 
 			var self = this;
@@ -72,7 +72,7 @@
 				e.stopPropagation();
 				if (!self.isUploading && self.currentImage) {
 					// Check daily limit before opening file picker.
-					if (!firData.isPro && firData.remaining <= 0) {
+					if (!bm1firData.isPro && bm1firData.remaining <= 0) {
 						self.showLimitReached();
 						return;
 					}
@@ -85,41 +85,41 @@
 
 			document.body.appendChild(overlay);
 			this.overlay = overlay;
-			this.progressBar = overlay.querySelector('.fir-progress__bar');
+			this.progressBar = overlay.querySelector('.bm1fir-progress__bar');
 		},
 
 		/**
 		 * Create the toolbar notification bar.
 		 */
 		createToolbar: function () {
-			if (sessionStorage.getItem('fir_toolbar_dismissed')) {
+			if (sessionStorage.getItem('bm1fir_toolbar_dismissed')) {
 				return;
 			}
 
 			var toolbar = document.createElement('div');
-			toolbar.className = 'fir-toolbar';
+			toolbar.className = 'bm1fir-toolbar';
 
 			var textHtml =
-				'<span class="fir-toolbar__text">' +
-					'<svg class="fir-toolbar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
-					firData.i18n.toolbarText +
+				'<span class="bm1fir-toolbar__text">' +
+					'<svg class="bm1fir-toolbar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+					bm1firData.i18n.toolbarText +
 				'</span>';
 
 			// Show remaining count for free users.
-			if (!firData.isPro) {
+			if (!bm1firData.isPro) {
 				textHtml +=
-					'<span class="fir-toolbar__limit">' +
-						firData.remaining + ' ' + firData.i18n.remaining +
-						' &mdash; <a href="' + firData.upgradeUrl + '" target="_blank" style="color: #72aee6;">' + firData.i18n.upgradePro + '</a>' +
+					'<span class="bm1fir-toolbar__limit">' +
+						bm1firData.remaining + ' ' + bm1firData.i18n.remaining +
+						' &mdash; <a href="' + bm1firData.upgradeUrl + '" target="_blank" style="color: #72aee6;">' + bm1firData.i18n.upgradePro + '</a>' +
 					'</span>';
 			}
 
 			toolbar.innerHTML = textHtml +
-				'<button class="fir-toolbar__close" type="button" aria-label="Close">&times;</button>';
+				'<button class="bm1fir-toolbar__close" type="button" aria-label="Close">&times;</button>';
 
-			toolbar.querySelector('.fir-toolbar__close').addEventListener('click', function () {
+			toolbar.querySelector('.bm1fir-toolbar__close').addEventListener('click', function () {
 				toolbar.remove();
-				sessionStorage.setItem('fir_toolbar_dismissed', '1');
+				sessionStorage.setItem('bm1fir_toolbar_dismissed', '1');
 			});
 
 			document.body.appendChild(toolbar);
@@ -130,16 +130,16 @@
 		 * Show limit reached message in the overlay.
 		 */
 		showLimitReached: function () {
-			this.overlay.classList.add('fir-overlay--error');
-			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.limitReached;
-			this.overlay.querySelector('.fir-overlay__status').innerHTML =
-				'<a href="' + firData.upgradeUrl + '" target="_blank" style="color: #fff; text-decoration: underline;">' +
-				firData.i18n.unlimitedPro + '</a>';
+			this.overlay.classList.add('bm1fir-overlay--error');
+			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.limitReached;
+			this.overlay.querySelector('.bm1fir-overlay__status').innerHTML =
+				'<a href="' + bm1firData.upgradeUrl + '" target="_blank" style="color: #fff; text-decoration: underline;">' +
+				bm1firData.i18n.unlimitedPro + '</a>';
 
 			var self = this;
 			setTimeout(function () {
-				self.overlay.classList.remove('fir-overlay--error');
-				self.overlay.querySelector('.fir-overlay__status').textContent = '';
+				self.overlay.classList.remove('bm1fir-overlay--error');
+				self.overlay.querySelector('.bm1fir-overlay__status').textContent = '';
 				self.hideOverlay();
 			}, 4000);
 		},
@@ -158,7 +158,7 @@
 				if (img.naturalHeight > 0 && img.naturalHeight < 50) return;
 
 				// Skip plugin UI elements, admin bar, and wp-admin elements.
-				if (img.closest('.fir-overlay') || img.closest('.fir-toolbar')) return;
+				if (img.closest('.bm1fir-overlay') || img.closest('.bm1fir-toolbar')) return;
 				if (img.closest('#wpadminbar') || img.closest('#adminmenuwrap') || img.closest('#wpbody') || img.closest('#adminmenu')) return;
 
 				// Skip images excluded via fir-no-replace class.
@@ -169,7 +169,7 @@
 				if (!src || src.indexOf('data:') === 0 || src.indexOf('.svg') !== -1) return;
 
 				// Skip the site logo.
-				if (firData.logoUrl && src.indexOf(firData.logoUrl.replace(/^https?:\/\/[^/]+/, '')) !== -1) return;
+				if (bm1firData.logoUrl && src.indexOf(bm1firData.logoUrl.replace(/^https?:\/\/[^/]+/, '')) !== -1) return;
 
 				// Try to extract attachment ID from wp-image-{ID} class.
 				var match = img.className && img.className.match(/wp-image-(\d+)/);
@@ -197,14 +197,14 @@
 		 */
 		resolveImages: function (urlMap, urlList) {
 			var formData = new FormData();
-			formData.append('action', 'fir_resolve_images');
-			formData.append('nonce', firData.nonce);
-			formData.append('token', firData.token);
+			formData.append('action', 'bm1fir_resolve_images');
+			formData.append('nonce', bm1firData.nonce);
+			formData.append('token', bm1firData.token);
 			formData.append('urls', JSON.stringify(urlList));
 
 			var self = this;
 
-			fetch(firData.ajaxUrl, { method: 'POST', body: formData })
+			fetch(bm1firData.ajaxUrl, { method: 'POST', body: formData })
 				.then(function (r) { return r.json(); })
 				.then(function (data) {
 					if (data.success && data.data) {
@@ -260,11 +260,11 @@
 			this.overlay.style.left = rect.left + 'px';
 			this.overlay.style.width = rect.width + 'px';
 			this.overlay.style.height = rect.height + 'px';
-			this.overlay.classList.add('fir-overlay--visible');
-			this.overlay.classList.remove('fir-overlay--uploading', 'fir-overlay--success', 'fir-overlay--error');
-			this.overlay.querySelector('.fir-progress').style.display = 'none';
-			this.overlay.querySelector('.fir-overlay__status').textContent = '';
-			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.replaceImage;
+			this.overlay.classList.add('bm1fir-overlay--visible');
+			this.overlay.classList.remove('bm1fir-overlay--uploading', 'bm1fir-overlay--success', 'bm1fir-overlay--error');
+			this.overlay.querySelector('.bm1fir-progress').style.display = 'none';
+			this.overlay.querySelector('.bm1fir-overlay__status').textContent = '';
+			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.replaceImage;
 			this.currentImage = img;
 		},
 
@@ -272,7 +272,7 @@
 		 * Hide the overlay.
 		 */
 		hideOverlay: function () {
-			this.overlay.classList.remove('fir-overlay--visible');
+			this.overlay.classList.remove('bm1fir-overlay--visible');
 			this.currentImage = null;
 		},
 
@@ -306,9 +306,9 @@
 			this.overlay.style.left = rect.left + 'px';
 			this.overlay.style.width = rect.width + 'px';
 			this.overlay.style.height = rect.height + 'px';
-			this.overlay.classList.add('fir-overlay--visible', 'fir-overlay--uploading');
-			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.uploading;
-			this.overlay.querySelector('.fir-progress').style.display = 'block';
+			this.overlay.classList.add('bm1fir-overlay--visible', 'bm1fir-overlay--uploading');
+			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.uploading;
+			this.overlay.querySelector('.bm1fir-progress').style.display = 'block';
 			this.progressBar.style.width = '0%';
 
 			// Get the specific src URL of the clicked image for targeted replacement.
@@ -326,11 +326,11 @@
 			});
 
 			var formData = new FormData();
-			formData.append('action', 'fir_replace_image');
-			formData.append('nonce', firData.nonce);
-			formData.append('token', firData.token);
+			formData.append('action', 'bm1fir_replace_image');
+			formData.append('nonce', bm1firData.nonce);
+			formData.append('token', bm1firData.token);
 			formData.append('attachment_id', attachmentId);
-			formData.append('post_id', firData.postId || 0);
+			formData.append('post_id', bm1firData.postId || 0);
 			formData.append('image_src', imageSrc);
 			formData.append('occurrence_index', occurrenceIndex);
 			formData.append('file', file);
@@ -349,8 +349,8 @@
 					var response = JSON.parse(xhr.responseText);
 					if (response.success) {
 						// Update remaining count.
-						if (!firData.isPro) {
-							firData.remaining = Math.max(0, firData.remaining - 1);
+						if (!bm1firData.isPro) {
+							bm1firData.remaining = Math.max(0, bm1firData.remaining - 1);
 						}
 						self.onSuccess();
 					} else {
@@ -358,18 +358,18 @@
 						// Check if it's a limit error with upgrade URL.
 						if (typeof msg === 'object' && msg !== null) {
 							if (msg.limit && msg.upgrade_url) {
-								firData.remaining = 0;
+								bm1firData.remaining = 0;
 								self.isUploading = false;
-								self.overlay.classList.remove('fir-overlay--uploading');
+								self.overlay.classList.remove('bm1fir-overlay--uploading');
 								self.showLimitReached();
 								return;
 							}
 							msg = msg.message || JSON.stringify(msg);
 						}
-						self.onError(msg || firData.i18n.error);
+						self.onError(msg || bm1firData.i18n.error);
 					}
 				} catch (e) {
-					self.onError(firData.i18n.error);
+					self.onError(bm1firData.i18n.error);
 				}
 			});
 
@@ -377,7 +377,7 @@
 				self.onError('Network error');
 			});
 
-			xhr.open('POST', firData.ajaxUrl);
+			xhr.open('POST', bm1firData.ajaxUrl);
 			xhr.send(formData);
 		},
 
@@ -385,10 +385,10 @@
 		 * Handle successful replacement.
 		 */
 		onSuccess: function () {
-			this.overlay.classList.remove('fir-overlay--uploading');
-			this.overlay.classList.add('fir-overlay--success');
-			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.success;
-			this.overlay.querySelector('.fir-progress').style.display = 'none';
+			this.overlay.classList.remove('bm1fir-overlay--uploading');
+			this.overlay.classList.add('bm1fir-overlay--success');
+			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.success;
+			this.overlay.querySelector('.bm1fir-progress').style.display = 'none';
 
 			// Save scroll position and reload.
 			sessionStorage.setItem('fir_scroll_y', String(window.scrollY));
@@ -405,15 +405,15 @@
 		 */
 		onError: function (message) {
 			this.isUploading = false;
-			this.overlay.classList.remove('fir-overlay--uploading');
-			this.overlay.classList.add('fir-overlay--error');
-			this.overlay.querySelector('.fir-overlay__label').textContent = firData.i18n.error;
-			this.overlay.querySelector('.fir-progress').style.display = 'none';
-			this.overlay.querySelector('.fir-overlay__status').textContent = message;
+			this.overlay.classList.remove('bm1fir-overlay--uploading');
+			this.overlay.classList.add('bm1fir-overlay--error');
+			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.error;
+			this.overlay.querySelector('.bm1fir-progress').style.display = 'none';
+			this.overlay.querySelector('.bm1fir-overlay__status').textContent = message;
 
 			var self = this;
 			setTimeout(function () {
-				self.overlay.classList.remove('fir-overlay--error');
+				self.overlay.classList.remove('bm1fir-overlay--error');
 				self.hideOverlay();
 			}, 3000);
 		},
@@ -435,11 +435,11 @@
 		updateToolbarCount: function () {
 			if (!this.toolbar) return;
 			var count = this.images.size;
-			var countEl = this.toolbar.querySelector('.fir-toolbar__count');
+			var countEl = this.toolbar.querySelector('.bm1fir-toolbar__count');
 			if (!countEl) {
 				countEl = document.createElement('span');
-				countEl.className = 'fir-toolbar__count';
-				this.toolbar.querySelector('.fir-toolbar__text').appendChild(countEl);
+				countEl.className = 'bm1fir-toolbar__count';
+				this.toolbar.querySelector('.bm1fir-toolbar__text').appendChild(countEl);
 			}
 			countEl.textContent = ' (' + count + ')';
 		}
@@ -454,14 +454,14 @@
 
 	// Update overlay position on scroll.
 	window.addEventListener('scroll', function () {
-		if (FIR.overlay && FIR.overlay.classList.contains('fir-overlay--visible') && !FIR.isUploading) {
+		if (FIR.overlay && FIR.overlay.classList.contains('bm1fir-overlay--visible') && !FIR.isUploading) {
 			FIR.hideOverlay();
 		}
 	}, { passive: true });
 
 	// Update overlay position on resize.
 	window.addEventListener('resize', function () {
-		if (FIR.overlay && FIR.overlay.classList.contains('fir-overlay--visible') && !FIR.isUploading) {
+		if (FIR.overlay && FIR.overlay.classList.contains('bm1fir-overlay--visible') && !FIR.isUploading) {
 			FIR.hideOverlay();
 		}
 	});

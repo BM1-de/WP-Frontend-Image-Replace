@@ -1,11 +1,10 @@
-# Frontend Image Replace
+# BM1 Frontend Image Replace
 
 WordPress plugin to replace images directly from the frontend. Upload a new image, and it replaces the old one in your content. The original image stays in the media library.
 
 ## Features
 
 ### Free
-- 3 image replacements per day
 - Hover overlay on any media library image in the frontend
 - Uploads new images to the WordPress media library
 - Updates image references in the specific post (URL, attachment ID, dimensions)
@@ -14,16 +13,18 @@ WordPress plugin to replace images directly from the frontend. Upload a new imag
 - Translation-ready (German included)
 
 ### Pro
-- Unlimited image replacements
+- Unlimited image replacements (free: 3 per day)
 - Guest access via temporary shareable links (with expiry)
 - Activity log for all image replacements (Tools > Image Replace Log)
 - Priority support
 
+Get the Pro version at [wp-frontend-image-replace.com](https://wp-frontend-image-replace.com).
+
 ## Installation
 
-1. Upload the `frontend-image-replace` folder to `/wp-content/plugins/`
+1. Upload the `bm1-frontend-image-replace` folder to `/wp-content/plugins/`
 2. Activate the plugin
-3. Go to **Settings > Frontend Image Replace**
+3. Go to **Settings > BM1 Frontend Image Replace**
 
 ## Usage
 

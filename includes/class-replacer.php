@@ -2,20 +2,20 @@
 /**
  * AJAX handlers and image replacement logic.
  *
- * @package FrontendImageReplace
+ * @package BM1FrontendImageReplace
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class FIR_Replacer {
+class BM1FIR_Replacer {
 
 	public function __construct() {
-		add_action( 'wp_ajax_fir_replace_image', array( $this, 'handle_replace' ) );
-		add_action( 'wp_ajax_nopriv_fir_replace_image', array( $this, 'handle_replace' ) );
-		add_action( 'wp_ajax_fir_resolve_images', array( $this, 'handle_resolve' ) );
-		add_action( 'wp_ajax_nopriv_fir_resolve_images', array( $this, 'handle_resolve' ) );
+		add_action( 'wp_ajax_bm1fir_replace_image', array( $this, 'handle_replace' ) );
+		add_action( 'wp_ajax_nopriv_bm1fir_replace_image', array( $this, 'handle_replace' ) );
+		add_action( 'wp_ajax_bm1fir_resolve_images', array( $this, 'handle_resolve' ) );
+		add_action( 'wp_ajax_nopriv_bm1fir_resolve_images', array( $this, 'handle_resolve' ) );
 	}
 
 	/**
@@ -25,7 +25,7 @@ class FIR_Replacer {
 	 */
 	private function verify_access() {
 		// Verify nonce.
-		if ( ! check_ajax_referer( 'fir_nonce', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'bm1fir_nonce', 'nonce', false ) ) {
 			return false;
 		}
 
@@ -35,26 +35,27 @@ class FIR_Replacer {
 		}
 
 		// Allow access when globally enabled.
-		if ( Frontend_Image_Replace::is_enabled() ) {
+		if ( BM1_Frontend_Image_Replace::is_enabled() ) {
 			return true;
 		}
 
 		// Check token from POST data (Pro only).
-		if ( ! Frontend_Image_Replace::is_pro() ) {
+		if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
 			return false;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above.
 		$token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
 		if ( empty( $token ) ) {
 			return false;
 		}
 
-		$stored_token = get_option( 'fir_access_token' );
+		$stored_token = get_option( 'bm1fir_access_token' );
 		if ( empty( $stored_token ) || ! hash_equals( $stored_token, $token ) ) {
 			return false;
 		}
 
-		$expiry = get_option( 'fir_token_expiry', 0 );
+		$expiry = get_option( 'bm1fir_token_expiry', 0 );
 		if ( ! empty( $expiry ) && time() >= (int) $expiry ) {
 			return false;
 		}
@@ -67,59 +68,69 @@ class FIR_Replacer {
 	 */
 	public function handle_replace() {
 		if ( ! $this->verify_access() ) {
-			FIR_Logger::debug( 'Replace rejected: unauthorized' );
-			wp_send_json_error( __( 'Unauthorized.', 'frontend-image-replace' ), 403 );
+			BM1FIR_Logger::debug( 'Replace rejected: unauthorized' );
+			wp_send_json_error( __( 'Unauthorized.', 'bm1-frontend-image-replace' ), 403 );
 		}
 
 		// Check daily limit (Free: 3/day).
-		$remaining = Frontend_Image_Replace::get_remaining_today();
+		$remaining = BM1_Frontend_Image_Replace::get_remaining_today();
 		if ( $remaining === 0 ) {
-			FIR_Logger::debug( 'Replace rejected: daily limit reached' );
+			BM1FIR_Logger::debug( 'Replace rejected: daily limit reached' );
 			wp_send_json_error( array(
-				'message'     => __( 'Daily limit reached. Upgrade to Pro for unlimited replacements.', 'frontend-image-replace' ),
-				'upgrade_url' => fir_fs()->get_upgrade_url(),
+				'message'     => __( 'Daily limit reached. Upgrade to Pro for unlimited replacements.', 'bm1-frontend-image-replace' ),
+				'upgrade_url' => bm1fir_fs()->get_upgrade_url(),
 				'limit'       => true,
 			) );
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
 		$old_attachment_id = isset( $_POST['attachment_id'] ) ? absint( $_POST['attachment_id'] ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
 		$post_id           = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
 		$image_src         = isset( $_POST['image_src'] ) ? esc_url_raw( wp_unslash( $_POST['image_src'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
 		$occurrence_index  = isset( $_POST['occurrence_index'] ) ? absint( $_POST['occurrence_index'] ) : 0;
 
 		if ( ! $old_attachment_id ) {
-			wp_send_json_error( __( 'Invalid attachment ID.', 'frontend-image-replace' ) );
+			wp_send_json_error( __( 'Invalid attachment ID.', 'bm1-frontend-image-replace' ) );
 		}
 
 		$old_attachment = get_post( $old_attachment_id );
 		if ( ! $old_attachment || 'attachment' !== $old_attachment->post_type ) {
-			wp_send_json_error( __( 'Attachment not found.', 'frontend-image-replace' ) );
+			wp_send_json_error( __( 'Attachment not found.', 'bm1-frontend-image-replace' ) );
 		}
 
-		if ( ! isset( $_FILES['file'] ) ) {
-			wp_send_json_error( __( 'No file uploaded.', 'frontend-image-replace' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
+		if ( ! isset( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
+			wp_send_json_error( __( 'No file uploaded.', 'bm1-frontend-image-replace' ) );
 		}
 
 		// Rate limiting: max 20 uploads per minute per IP.
-		$ip_key = 'fir_rate_' . md5( $_SERVER['REMOTE_ADDR'] ?? 'unknown' );
-		$count  = (int) get_transient( $ip_key );
+		$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ?? '' ) );
+		$ip_key      = 'bm1fir_rate_' . md5( $remote_addr );
+		$count       = (int) get_transient( $ip_key );
 		if ( $count >= 20 ) {
-			FIR_Logger::debug( 'Replace rejected: rate limit exceeded' );
-			wp_send_json_error( __( 'Too many uploads. Please wait a moment.', 'frontend-image-replace' ), 429 );
+			BM1FIR_Logger::debug( 'Replace rejected: rate limit exceeded' );
+			wp_send_json_error( __( 'Too many uploads. Please wait a moment.', 'bm1-frontend-image-replace' ), 429 );
 		}
 		set_transient( $ip_key, $count + 1, MINUTE_IN_SECONDS );
 
 		// File size limit: max 10 MB.
-		$max_size = 10 * MB_IN_BYTES;
-		if ( $_FILES['file']['size'] > $max_size ) {
-			wp_send_json_error( __( 'File too large. Maximum size is 10 MB.', 'frontend-image-replace' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
+		$file_size = isset( $_FILES['file']['size'] ) ? absint( $_FILES['file']['size'] ) : 0;
+		$max_size  = 10 * MB_IN_BYTES;
+		if ( $file_size > $max_size ) {
+			wp_send_json_error( __( 'File too large. Maximum size is 10 MB.', 'bm1-frontend-image-replace' ) );
 		}
 
 		// Validate file type: only images allowed.
 		$allowed_types = array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif' );
-		$file_info     = wp_check_filetype( $_FILES['file']['name'] );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
+		$file_name     = isset( $_FILES['file']['name'] ) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
+		$file_info     = wp_check_filetype( $file_name );
 		if ( empty( $file_info['type'] ) || ! in_array( $file_info['type'], $allowed_types, true ) ) {
-			wp_send_json_error( __( 'Only image files (JPG, PNG, GIF, WebP, AVIF) are allowed.', 'frontend-image-replace' ) );
+			wp_send_json_error( __( 'Only image files (JPG, PNG, GIF, WebP, AVIF) are allowed.', 'bm1-frontend-image-replace' ) );
 		}
 
 		// Include required WordPress files.
@@ -131,14 +142,14 @@ class FIR_Replacer {
 		$upload = wp_handle_upload( $_FILES['file'], array( 'test_form' => false ) );
 
 		if ( isset( $upload['error'] ) ) {
-			FIR_Logger::error( 'Upload failed', array( 'error' => $upload['error'] ) );
-			wp_send_json_error( __( 'Upload failed. Please try again.', 'frontend-image-replace' ) );
+			BM1FIR_Logger::error( 'Upload failed', array( 'error' => $upload['error'] ) );
+			wp_send_json_error( __( 'Upload failed. Please try again.', 'bm1-frontend-image-replace' ) );
 		}
 
 		// Create new attachment post.
 		$new_attachment = array(
 			'post_mime_type' => $upload['type'],
-			'post_title'     => preg_replace( '/\.[^.]+$/', '', sanitize_file_name( $_FILES['file']['name'] ) ),
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', $file_name ),
 			'post_content'   => '',
 			'post_status'    => 'inherit',
 		);
@@ -146,7 +157,7 @@ class FIR_Replacer {
 		$new_attachment_id = wp_insert_attachment( $new_attachment, $upload['file'] );
 
 		if ( is_wp_error( $new_attachment_id ) ) {
-			FIR_Logger::error( 'Attachment creation failed', array( 'error' => $new_attachment_id->get_error_message() ) );
+			BM1FIR_Logger::error( 'Attachment creation failed', array( 'error' => $new_attachment_id->get_error_message() ) );
 			wp_delete_file( $upload['file'] );
 			wp_send_json_error( $new_attachment_id->get_error_message() );
 		}
@@ -162,7 +173,7 @@ class FIR_Replacer {
 		$this->replace_single_occurrence( $post_id, $old_attachment_id, $new_attachment_id, $image_src, $new_url, $occurrence_index );
 
 		// Log the replacement.
-		FIR_Logger::log_replacement( array(
+		BM1FIR_Logger::log_replacement( array(
 			'post_id'           => $post_id,
 			'post_title'        => get_the_title( $post_id ),
 			'old_attachment_id' => $old_attachment_id,
@@ -171,12 +182,12 @@ class FIR_Replacer {
 			'new_url'           => $new_url,
 			'user_info'         => is_user_logged_in()
 				? wp_get_current_user()->user_login
-				: 'Token (' . substr( md5( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '' ), 0, 8 ) . ')',
+				: 'Token (' . substr( md5( $remote_addr ), 0, 8 ) . ')',
 		) );
-		FIR_Logger::debug( 'Image replaced', array( 'post_id' => $post_id, 'old_id' => $old_attachment_id, 'new_id' => $new_attachment_id ) );
+		BM1FIR_Logger::debug( 'Image replaced', array( 'post_id' => $post_id, 'old_id' => $old_attachment_id, 'new_id' => $new_attachment_id ) );
 
 		// Increment daily counter for free users.
-		Frontend_Image_Replace::increment_daily_count();
+		BM1_Frontend_Image_Replace::increment_daily_count();
 
 		wp_send_json_success( array(
 			'old_attachment_id' => $old_attachment_id,
@@ -190,9 +201,11 @@ class FIR_Replacer {
 	 */
 	public function handle_resolve() {
 		if ( ! $this->verify_access() ) {
-			wp_send_json_error( __( 'Unauthorized.', 'frontend-image-replace' ), 403 );
+			wp_send_json_error( __( 'Unauthorized.', 'bm1-frontend-image-replace' ), 403 );
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON decoded, then each URL sanitized individually below via esc_url_raw().
 		$urls = isset( $_POST['urls'] ) ? json_decode( wp_unslash( $_POST['urls'] ), true ) : array();
 		if ( ! is_array( $urls ) || empty( $urls ) ) {
 			wp_send_json_success( array() );

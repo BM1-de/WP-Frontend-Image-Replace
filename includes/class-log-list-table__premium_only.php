@@ -2,7 +2,7 @@
 /**
  * WP_List_Table for the image replacement log.
  *
- * @package FrontendImageReplace
+ * @package BM1FrontendImageReplace
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -13,12 +13,12 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
 
-class FIR_Log_List_Table extends WP_List_Table {
+class BM1FIR_Log_List_Table extends WP_List_Table {
 
 	public function __construct() {
 		parent::__construct( array(
-			'singular' => 'fir_log_entry',
-			'plural'   => 'fir_log_entries',
+			'singular' => 'bm1fir_log_entry',
+			'plural'   => 'bm1fir_log_entries',
 			'ajax'     => false,
 		) );
 	}
@@ -26,11 +26,11 @@ class FIR_Log_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'                => '<input type="checkbox" />',
-			'created_at'        => __( 'Date', 'frontend-image-replace' ),
-			'post_title'        => __( 'Page', 'frontend-image-replace' ),
-			'old_attachment_id' => __( 'Old Image', 'frontend-image-replace' ),
-			'new_attachment_id' => __( 'New Image', 'frontend-image-replace' ),
-			'user_info'         => __( 'User', 'frontend-image-replace' ),
+			'created_at'        => __( 'Date', 'bm1-frontend-image-replace' ),
+			'post_title'        => __( 'Page', 'bm1-frontend-image-replace' ),
+			'old_attachment_id' => __( 'Old Image', 'bm1-frontend-image-replace' ),
+			'new_attachment_id' => __( 'New Image', 'bm1-frontend-image-replace' ),
+			'user_info'         => __( 'User', 'bm1-frontend-image-replace' ),
 		);
 	}
 
@@ -43,7 +43,7 @@ class FIR_Log_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'fir_log';
+		$table_name = $wpdb->prefix . 'bm1fir_log';
 		$per_page   = 20;
 		$paged      = $this->get_pagenum();
 		$offset     = ( $paged - 1 ) * $per_page;
@@ -52,16 +52,16 @@ class FIR_Log_List_Table extends WP_List_Table {
 		$orderby = 'created_at';
 		$order   = 'DESC';
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only sort order param.
 		$order_input = isset( $_GET['order'] ) ? sanitize_text_field( wp_unslash( $_GET['order'] ) ) : '';
 		if ( 'asc' === strtolower( $order_input ) ) {
 			$order = 'ASC';
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$total_items = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$this->items = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM {$table_name} ORDER BY created_at {$order} LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -99,7 +99,7 @@ class FIR_Log_List_Table extends WP_List_Table {
 	public function column_post_title( $item ) {
 		$edit_link = get_edit_post_link( $item->post_id );
 		$view_link = get_permalink( $item->post_id );
-		$title     = $item->post_title ?: __( '(no title)', 'frontend-image-replace' );
+		$title     = $item->post_title ?: __( '(no title)', 'bm1-frontend-image-replace' );
 
 		if ( $edit_link ) {
 			return sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html( $title ) );
@@ -143,7 +143,7 @@ class FIR_Log_List_Table extends WP_List_Table {
 
 	public function get_bulk_actions() {
 		return array(
-			'remove' => __( 'Remove selected', 'frontend-image-replace' ),
+			'remove' => __( 'Remove selected', 'bm1-frontend-image-replace' ),
 		);
 	}
 
@@ -155,11 +155,11 @@ class FIR_Log_List_Table extends WP_List_Table {
 		<div class="alignleft actions">
 			<?php
 			submit_button(
-				__( 'Clear log', 'frontend-image-replace' ),
+				__( 'Clear log', 'bm1-frontend-image-replace' ),
 				'',
-				'fir_clear_log',
+				'bm1fir_clear_log',
 				false,
-				array( 'onclick' => 'return confirm("' . esc_js( __( 'Remove all log entries?', 'frontend-image-replace' ) ) . '");' )
+				array( 'onclick' => 'return confirm("' . esc_js( __( 'Remove all log entries?', 'bm1-frontend-image-replace' ) ) . '");' )
 			);
 			?>
 		</div>

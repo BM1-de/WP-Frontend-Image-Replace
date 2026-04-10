@@ -2,14 +2,14 @@
 /**
  * Logger for activity tracking and debug logging.
  *
- * @package FrontendImageReplace
+ * @package BM1FrontendImageReplace
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class FIR_Logger {
+class BM1FIR_Logger {
 
 	/**
 	 * Log an image replacement to the database.
@@ -25,14 +25,15 @@ class FIR_Logger {
 	 * }
 	 */
 	public static function log_replacement( $data ) {
-		if ( ! Frontend_Image_Replace::is_pro() ) {
+		if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
 			return;
 		}
 
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
-			$wpdb->prefix . 'fir_log',
+			$wpdb->prefix . 'bm1fir_log',
 			array(
 				'post_id'           => $data['post_id'],
 				'post_title'        => $data['post_title'],
@@ -52,7 +53,7 @@ class FIR_Logger {
 	public static function create_table() {
 		global $wpdb;
 
-		$table_name      = $wpdb->prefix . 'fir_log';
+		$table_name      = $wpdb->prefix . 'bm1fir_log';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
@@ -77,8 +78,8 @@ class FIR_Logger {
 	 */
 	public static function drop_table() {
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}fir_log" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}bm1fir_log" );
 	}
 
 	/**
@@ -86,7 +87,8 @@ class FIR_Logger {
 	 */
 	public static function clear_log() {
 		global $wpdb;
-		$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}fir_log" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}bm1fir_log" );
 	}
 
 	/**
@@ -105,8 +107,8 @@ class FIR_Logger {
 		}
 
 		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}fir_log WHERE id IN ({$placeholders})", $ids ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}bm1fir_log WHERE id IN ({$placeholders})", $ids ) );
 	}
 
 	/**
@@ -121,7 +123,7 @@ class FIR_Logger {
 			return;
 		}
 
-		$entry = '[FIR] [DEBUG] ' . $message;
+		$entry = '[BM1FIR] [DEBUG] ' . $message;
 
 		if ( ! empty( $context ) ) {
 			$entry .= ' | ' . wp_json_encode( $context, JSON_UNESCAPED_SLASHES );
@@ -143,7 +145,7 @@ class FIR_Logger {
 			return;
 		}
 
-		$entry = '[FIR] [ERROR] ' . $message;
+		$entry = '[BM1FIR] [ERROR] ' . $message;
 
 		if ( ! empty( $context ) ) {
 			$entry .= ' | ' . wp_json_encode( $context, JSON_UNESCAPED_SLASHES );

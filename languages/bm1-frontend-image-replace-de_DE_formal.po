@@ -9,7 +9,7 @@ msgstr ""
 "PO-Revision-Date: 2026-03-20 00:00+0000\n"
 "Last-Translator: Phillip Baumgärtner <support@bm1.de>\n"
 "Language-Team: German <support@bm1.de>\n"
-"Language: de_DE\n"
+"Language: de_DE@formal\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -80,8 +80,8 @@ msgid "Copy Link"
 msgstr "Link kopieren"
 
 #: includes/class-admin.php
-msgid "Append ?fir_token=... to any page URL on this site to enable image replace mode."
-msgstr "Hängen Sie ?fir_token=... an jede Seiten-URL dieser Website an, um den Bild-ersetzen-Modus zu aktivieren."
+msgid "Append ?bm1fir_token=... to any page URL on this site to enable image replace mode."
+msgstr "Hängen Sie ?bm1fir_token=... an jede Seiten-URL dieser Website an, um den Bild-ersetzen-Modus zu aktivieren."
 
 #: includes/class-admin.php
 msgid "Access link active. Expires: %s"

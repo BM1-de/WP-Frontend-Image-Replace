@@ -1,10 +1,10 @@
-=== Frontend Image Replace ===
+=== BM1 Frontend Image Replace ===
 Contributors: phillipbaumgaertner
 Tags: images, replace, frontend, media, development
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Replace images directly from the frontend. Upload a new image, and it replaces t
 
 == Description ==
 
-**Frontend Image Replace** lets you swap out images on your WordPress site without ever touching the admin panel. Simply hover over any image on the frontend, click, and upload a replacement.
+**BM1 Frontend Image Replace** lets you swap out images on your WordPress site without ever touching the admin panel. Simply hover over any image on the frontend, click, and upload a replacement.
 
 Perfect for:
 
@@ -22,7 +22,7 @@ Perfect for:
 
 **How it works:**
 
-1. Enable the plugin in Settings > Frontend Image Replace
+1. Enable the plugin in Settings > BM1 Frontend Image Replace
 2. Visit any page on your site
 3. Hover over an image — a replace overlay appears
 4. Click and select a new image from your computer
@@ -30,26 +30,27 @@ Perfect for:
 
 **Free features:**
 
-* 3 image replacements per day
 * Works with any theme — no template modifications needed
 * Uploads new images to the WordPress media library (the original stays untouched)
 * Updates all references in post content
 * Supports Gutenberg block editor, Classic editor, and LiveCanvas
 * Lightweight — no jQuery dependency, minimal footprint
-* Translation-ready
+* Translation-ready (including German)
 
 **Pro features:**
 
-* Unlimited image replacements
+* Unlimited image replacements (free: 3 per day)
 * Guest access via shareable temporary links (with expiry)
 * Activity log for all image replacements (Tools > Image Replace Log)
 * Priority support
 
+A premium version with extended features is available at [wp-frontend-image-replace.com](https://wp-frontend-image-replace.com).
+
 == Installation ==
 
-1. Upload the `frontend-image-replace` folder to `/wp-content/plugins/`
+1. Upload the `bm1-frontend-image-replace` folder to `/wp-content/plugins/`
 2. Activate the plugin through the Plugins menu in WordPress
-3. Go to Settings > Frontend Image Replace
+3. Go to Settings > BM1 Frontend Image Replace
 4. Check "Enable Image Replace" and save
 
 **For guest access (Pro only):**
@@ -91,6 +92,13 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 
 == Changelog ==
 
+= 1.2.0 =
+* Renamed plugin to "BM1 Frontend Image Replace" for WordPress.org directory submission
+* Refactored internal prefixes from fir_ to bm1fir_ (Text Domain, classes, options)
+* Removed bundled Zammad support form — support now via https://wp-frontend-image-replace.com
+* Improved SQL query preparation in uninstall cleanup
+* Code-base split: free features hosted on WordPress.org, Pro version on wp-frontend-image-replace.com
+
 = 1.1.2 =
 * Add automated Freemius deployment via GitHub Actions
 
@@ -111,6 +119,9 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 * Rate limiting and security hardening
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Plugin renamed to "BM1 Frontend Image Replace" for WordPress.org directory listing.
 
 = 1.1.2 =
 Automated Freemius deployment pipeline.
