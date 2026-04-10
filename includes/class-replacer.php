@@ -78,7 +78,7 @@ class BM1FIR_Replacer {
 			BM1FIR_Logger::debug( 'Replace rejected: daily limit reached' );
 			wp_send_json_error( array(
 				'message'     => __( 'Daily limit reached. Upgrade to Pro for unlimited replacements.', 'bm1-frontend-image-replace' ),
-				'upgrade_url' => bm1_fs()->get_upgrade_url(),
+				'upgrade_url' => function_exists( 'bm1_fs' ) ? bm1_fs()->get_upgrade_url() : 'https://wp-frontend-image-replace.com',
 				'limit'       => true,
 			) );
 		}

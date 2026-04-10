@@ -68,7 +68,7 @@ class BM1FIR_Frontend {
 			'remaining'  => $remaining,
 			'isPro'      => $is_pro,
 			'logoUrl'    => $logo_url,
-			'upgradeUrl' => $is_pro ? '' : bm1_fs()->get_upgrade_url(),
+			'upgradeUrl' => ( $is_pro || ! function_exists( 'bm1_fs' ) ) ? '' : bm1_fs()->get_upgrade_url(),
 			'i18n'       => array(
 				'replaceImage'  => __( 'Replace Image', 'bm1-frontend-image-replace' ),
 				'uploading'     => __( 'Uploading...', 'bm1-frontend-image-replace' ),

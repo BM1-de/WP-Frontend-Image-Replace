@@ -30,45 +30,47 @@ define( 'BM1FIR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BM1FIR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
- * Freemius SDK integration.
+ * Freemius SDK integration (Pro only — not included in WP.org free build).
  */
-if ( ! function_exists( 'bm1_fs' ) ) {
-	function bm1_fs() {
-		global $bm1_fs;
+if ( file_exists( BM1FIR_PLUGIN_DIR . 'freemius/start.php' ) ) {
+	if ( ! function_exists( 'bm1_fs' ) ) {
+		function bm1_fs() {
+			global $bm1_fs;
 
-		if ( ! isset( $bm1_fs ) ) {
-			require_once BM1FIR_PLUGIN_DIR . 'freemius/start.php';
+			if ( ! isset( $bm1_fs ) ) {
+				require_once BM1FIR_PLUGIN_DIR . 'freemius/start.php';
 
-			$bm1_fs = fs_dynamic_init( array(
-				'id'                  => '26225',
-				'slug'                => 'bm1fir',
-				'premium_slug'        => 'bm1fir-premium',
-				'type'                => 'plugin',
-				'public_key'          => 'pk_de1c8475c019bc9d62d113503f273',
-				'is_premium'          => true,
-				'premium_suffix'      => 'Pro',
-				'has_premium_version' => true,
-				'has_addons'          => false,
-				'has_paid_plans'      => true,
-				'is_org_compliant'    => true,
-				'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
-				'menu'                => array(
-					'slug'    => 'bm1fir-settings',
-					'parent'  => array(
-						'slug' => 'options-general.php',
+				$bm1_fs = fs_dynamic_init( array(
+					'id'                  => '26225',
+					'slug'                => 'bm1fir',
+					'premium_slug'        => 'bm1fir-premium',
+					'type'                => 'plugin',
+					'public_key'          => 'pk_de1c8475c019bc9d62d113503f273',
+					'is_premium'          => true,
+					'premium_suffix'      => 'Pro',
+					'has_premium_version' => true,
+					'has_addons'          => false,
+					'has_paid_plans'      => true,
+					'is_org_compliant'    => true,
+					'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
+					'menu'                => array(
+						'slug'    => 'bm1fir-settings',
+						'parent'  => array(
+							'slug' => 'options-general.php',
+						),
+						'support' => false,
 					),
-					'support' => false,
-				),
-			) );
+				) );
+			}
+
+			return $bm1_fs;
 		}
 
-		return $bm1_fs;
+		bm1_fs();
+		do_action( 'bm1_fs_loaded' );
+
+		bm1_fs()->add_action( 'after_uninstall', 'bm1fir_cleanup' );
 	}
-
-	bm1_fs();
-	do_action( 'bm1_fs_loaded' );
-
-	bm1_fs()->add_action( 'after_uninstall', 'bm1fir_cleanup' );
 }
 
 function bm1fir_cleanup() {
@@ -137,7 +139,7 @@ final class BM1_Frontend_Image_Replace {
 	 * @return bool
 	 */
 	public static function is_pro() {
-		return bm1_fs()->is_plan( 'pro' );
+		return function_exists( 'bm1_fs' ) && bm1_fs()->is_plan( 'pro' );
 	}
 
 	/**

@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
-OUTPUT_DIR="${1:-/tmp/bm1-frontend-image-replace}"
+OUTPUT_DIR="${1:-$PLUGIN_DIR/tmp/bm1-frontend-image-replace}"
 
 echo "=== Building Free Version ==="
 echo "Source:  $PLUGIN_DIR"
@@ -20,17 +20,24 @@ echo "Output:  $OUTPUT_DIR"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-# Copy source (exclude dev files).
+# Copy source (exclude dev files and Freemius SDK).
 rsync -a \
   --exclude='.git' \
   --exclude='.github' \
   --exclude='node_modules' \
   --exclude='bin' \
+  --exclude='tmp' \
+  --exclude='freemius' \
   "$PLUGIN_DIR/" "$OUTPUT_DIR/"
 
 # Remove premium-only files.
 find "$OUTPUT_DIR" -name '*__premium_only.*' -delete
 echo "Removed __premium_only files."
+
+# Remove hidden files and problematic files (WP.org rejects these).
+find "$OUTPUT_DIR" -name '.*' -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+find "$OUTPUT_DIR" -name '*.patch' -delete
+echo "Removed hidden files and patches."
 
 # Remove premium code blocks (//#! pro ... //#! endpro).
 find "$OUTPUT_DIR" -type f \( -name '*.php' -o -name '*.js' \) -print0 | \
