@@ -56,8 +56,8 @@ class BM1FIR_Admin {
 
 		// Deactivate license key.
 		if ( isset( $_POST['bm1fir_deactivate_license'] ) && check_admin_referer( 'bm1fir_license_action' ) ) {
-			if ( function_exists( 'bm1fir_fs' ) ) {
-				bm1fir_fs()->delete_account_event();
+			if ( function_exists( 'bm1_fs' ) ) {
+				bm1_fs()->delete_account_event();
 			}
 			wp_safe_redirect( admin_url( 'options-general.php?page=bm1fir-settings&license_deactivated=1' ) );
 			exit;
@@ -66,9 +66,9 @@ class BM1FIR_Admin {
 		// Activate license key.
 		if ( isset( $_POST['bm1fir_activate_license'] ) && check_admin_referer( 'bm1fir_license_action' ) ) {
 			$license_key = isset( $_POST['bm1fir_license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['bm1fir_license_key'] ) ) : '';
-			if ( ! empty( $license_key ) && function_exists( 'bm1fir_fs' ) ) {
+			if ( ! empty( $license_key ) && function_exists( 'bm1_fs' ) ) {
 				try {
-					$result = bm1fir_fs()->activate_migrated_license( $license_key );
+					$result = bm1_fs()->activate_migrated_license( $license_key );
 					if ( is_object( $result ) && isset( $result->error ) ) {
 						set_transient( 'bm1fir_license_error', $result->error, 60 );
 					} else {
@@ -187,7 +187,7 @@ class BM1FIR_Admin {
 						printf(
 							/* translators: %s: upgrade link */
 							esc_html__( 'Upgrade to Pro for guest access links and activity log. %s', 'bm1-frontend-image-replace' ),
-							'<a href="' . esc_url( bm1fir_fs()->get_upgrade_url() ) . '">' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</a>'
+							'<a href="' . esc_url( bm1_fs()->get_upgrade_url() ) . '">' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</a>'
 						);
 						?>
 					</p>
@@ -301,7 +301,7 @@ class BM1FIR_Admin {
 						printf(
 							/* translators: %s: upgrade link */
 							esc_html__( 'Guest access links are a Pro feature. %s to share temporary image replace links with clients and team members.', 'bm1-frontend-image-replace' ),
-							'<a href="' . esc_url( bm1fir_fs()->get_upgrade_url() ) . '"><strong>' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</strong></a>'
+							'<a href="' . esc_url( bm1_fs()->get_upgrade_url() ) . '"><strong>' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</strong></a>'
 						);
 						?>
 					</p>
