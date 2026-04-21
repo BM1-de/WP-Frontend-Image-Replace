@@ -4,7 +4,7 @@ Tags: images, replace, frontend, media, development
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -92,6 +92,12 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 
 == Changelog ==
 
+= 1.2.1 =
+* Fix Freemius is_premium flag for WordPress.org free build
+* Sanitize POST input in batch URL resolver
+* Escape Freemius upgrade URL output in admin settings
+* Remove screenshot assets from plugin package (SVN-only)
+
 = 1.2.0 =
 * Renamed plugin to "BM1 Frontend Image Replace" for WordPress.org directory submission
 * Refactored internal prefixes from fir_ to bm1fir_ (Text Domain, classes, options)
@@ -119,6 +125,9 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 * Rate limiting and security hardening
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Fixes WordPress.org plugin review issues: input sanitization, output escaping, Freemius compliance.
 
 = 1.2.0 =
 Plugin renamed to "BM1 Frontend Image Replace" for WordPress.org directory listing.
