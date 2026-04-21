@@ -46,7 +46,7 @@ if ( file_exists( BM1FIR_PLUGIN_DIR . 'freemius/start.php' ) ) {
 					'premium_slug'        => 'bm1fir-premium',
 					'type'                => 'plugin',
 					'public_key'          => 'pk_de1c8475c019bc9d62d113503f273',
-					'is_premium'          => true,
+					'is_premium'          => false,
 					'premium_suffix'      => 'Pro',
 					'has_premium_version' => true,
 					'has_addons'          => false,

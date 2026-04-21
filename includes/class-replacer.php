@@ -205,8 +205,12 @@ class BM1FIR_Replacer {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON decoded, then each URL sanitized individually below via esc_url_raw().
-		$urls = isset( $_POST['urls'] ) ? json_decode( wp_unslash( $_POST['urls'] ), true ) : array();
+		$raw_urls = isset( $_POST['urls'] ) ? sanitize_text_field( wp_unslash( $_POST['urls'] ) ) : '';
+		if ( ! is_string( $raw_urls ) || '' === $raw_urls ) {
+			wp_send_json_success( array() );
+		}
+
+		$urls = json_decode( $raw_urls, true );
 		if ( ! is_array( $urls ) || empty( $urls ) ) {
 			wp_send_json_success( array() );
 		}
@@ -216,6 +220,9 @@ class BM1FIR_Replacer {
 		$results = array();
 
 		foreach ( $urls as $url ) {
+			if ( ! is_string( $url ) ) {
+				continue;
+			}
 			$url = esc_url_raw( $url );
 			if ( empty( $url ) ) {
 				continue;
