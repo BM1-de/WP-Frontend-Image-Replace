@@ -10,7 +10,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
-OUTPUT_DIR="${1:-$PLUGIN_DIR/tmp/bm1-frontend-image-replace}"
+REPO_ROOT="$(cd "$PLUGIN_DIR/../../../.." && pwd)"
+OUTPUT_DIR="${1:-$REPO_ROOT/tmp/bm1-frontend-image-replace}"
 
 echo "=== Building Free Version ==="
 echo "Source:  $PLUGIN_DIR"
