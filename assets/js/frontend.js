@@ -71,11 +71,6 @@
 				e.preventDefault();
 				e.stopPropagation();
 				if (!self.isUploading && self.currentImage) {
-					// Check daily limit before opening file picker.
-					if (!bm1firData.isPro && bm1firData.remaining <= 0) {
-						self.showLimitReached();
-						return;
-					}
 					var attachmentId = self.images.get(self.currentImage);
 					if (attachmentId) {
 						self.handleReplace(self.currentImage, attachmentId);
@@ -105,15 +100,6 @@
 					bm1firData.i18n.toolbarText +
 				'</span>';
 
-			// Show remaining count for free users.
-			if (!bm1firData.isPro) {
-				textHtml +=
-					'<span class="bm1fir-toolbar__limit">' +
-						bm1firData.remaining + ' ' + bm1firData.i18n.remaining +
-						' &mdash; <a href="' + bm1firData.upgradeUrl + '" target="_blank" style="color: #72aee6;">' + bm1firData.i18n.upgradePro + '</a>' +
-					'</span>';
-			}
-
 			toolbar.innerHTML = textHtml +
 				'<button class="bm1fir-toolbar__close" type="button" aria-label="Close">&times;</button>';
 
@@ -124,24 +110,6 @@
 
 			document.body.appendChild(toolbar);
 			this.toolbar = toolbar;
-		},
-
-		/**
-		 * Show limit reached message in the overlay.
-		 */
-		showLimitReached: function () {
-			this.overlay.classList.add('bm1fir-overlay--error');
-			this.overlay.querySelector('.bm1fir-overlay__label').textContent = bm1firData.i18n.limitReached;
-			this.overlay.querySelector('.bm1fir-overlay__status').innerHTML =
-				'<a href="' + bm1firData.upgradeUrl + '" target="_blank" style="color: #fff; text-decoration: underline;">' +
-				bm1firData.i18n.unlimitedPro + '</a>';
-
-			var self = this;
-			setTimeout(function () {
-				self.overlay.classList.remove('bm1fir-overlay--error');
-				self.overlay.querySelector('.bm1fir-overlay__status').textContent = '';
-				self.hideOverlay();
-			}, 4000);
 		},
 
 		/**
@@ -348,22 +316,10 @@
 				try {
 					var response = JSON.parse(xhr.responseText);
 					if (response.success) {
-						// Update remaining count.
-						if (!bm1firData.isPro) {
-							bm1firData.remaining = Math.max(0, bm1firData.remaining - 1);
-						}
 						self.onSuccess();
 					} else {
 						var msg = response.data;
-						// Check if it's a limit error with upgrade URL.
 						if (typeof msg === 'object' && msg !== null) {
-							if (msg.limit && msg.upgrade_url) {
-								bm1firData.remaining = 0;
-								self.isUploading = false;
-								self.overlay.classList.remove('bm1fir-overlay--uploading');
-								self.showLimitReached();
-								return;
-							}
 							msg = msg.message || JSON.stringify(msg);
 						}
 						self.onError(msg || bm1firData.i18n.error);

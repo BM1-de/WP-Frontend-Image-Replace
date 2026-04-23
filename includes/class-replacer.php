@@ -35,32 +35,28 @@ class BM1FIR_Replacer {
 		}
 
 		// Allow access when globally enabled.
-		if ( BM1_Frontend_Image_Replace::is_enabled() ) {
+		if ( BM1FIR_Plugin::is_enabled() ) {
 			return true;
 		}
 
+		//#! pro
 		// Check token from POST data (Pro only).
-		if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
-			return false;
+		if ( BM1FIR_Plugin::is_pro() ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above.
+			$token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
+			if ( ! empty( $token ) ) {
+				$stored_token = get_option( 'bm1fir_access_token' );
+				if ( ! empty( $stored_token ) && hash_equals( $stored_token, $token ) ) {
+					$expiry = get_option( 'bm1fir_token_expiry', 0 );
+					if ( empty( $expiry ) || time() < (int) $expiry ) {
+						return true;
+					}
+				}
+			}
 		}
+		//#! endpro
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above.
-		$token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( $_POST['token'] ) ) : '';
-		if ( empty( $token ) ) {
-			return false;
-		}
-
-		$stored_token = get_option( 'bm1fir_access_token' );
-		if ( empty( $stored_token ) || ! hash_equals( $stored_token, $token ) ) {
-			return false;
-		}
-
-		$expiry = get_option( 'bm1fir_token_expiry', 0 );
-		if ( ! empty( $expiry ) && time() >= (int) $expiry ) {
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	/**
@@ -70,17 +66,6 @@ class BM1FIR_Replacer {
 		if ( ! $this->verify_access() ) {
 			BM1FIR_Logger::debug( 'Replace rejected: unauthorized' );
 			wp_send_json_error( __( 'Unauthorized.', 'bm1-frontend-image-replace' ), 403 );
-		}
-
-		// Check daily limit (Free: 3/day).
-		$remaining = BM1_Frontend_Image_Replace::get_remaining_today();
-		if ( $remaining === 0 ) {
-			BM1FIR_Logger::debug( 'Replace rejected: daily limit reached' );
-			wp_send_json_error( array(
-				'message'     => __( 'Daily limit reached. Upgrade to Pro for unlimited replacements.', 'bm1-frontend-image-replace' ),
-				'upgrade_url' => function_exists( 'bm1_fs' ) ? bm1_fs()->get_upgrade_url() : 'https://wp-frontend-image-replace.com',
-				'limit'       => true,
-			) );
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in verify_access().
@@ -133,10 +118,9 @@ class BM1FIR_Replacer {
 			wp_send_json_error( __( 'Only image files (JPG, PNG, GIF, WebP, AVIF) are allowed.', 'bm1-frontend-image-replace' ) );
 		}
 
-		// Include required WordPress files.
+		// Include required WordPress files for wp_handle_upload() and wp_generate_attachment_metadata().
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
 
 		// Upload new file as a new attachment.
 		$upload = wp_handle_upload( $_FILES['file'], array( 'test_form' => false ) );
@@ -185,9 +169,6 @@ class BM1FIR_Replacer {
 				: 'Token (' . substr( md5( $remote_addr ), 0, 8 ) . ')',
 		) );
 		BM1FIR_Logger::debug( 'Image replaced', array( 'post_id' => $post_id, 'old_id' => $old_attachment_id, 'new_id' => $new_attachment_id ) );
-
-		// Increment daily counter for free users.
-		BM1_Frontend_Image_Replace::increment_daily_count();
 
 		wp_send_json_success( array(
 			'old_attachment_id' => $old_attachment_id,

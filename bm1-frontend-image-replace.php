@@ -9,7 +9,7 @@
  * Plugin Name:       BM1 Frontend Image Replace
  * Plugin URI:        https://wp-frontend-image-replace.com
  * Description:       Upload new images to the WordPress media library directly from the frontend and swap them into your content. Perfect for replacing demo/placeholder images during development.
- * Version:           1.2.1
+ * Version:           1.2.2
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Author:            Baumgärtner Marketing GmbH
@@ -24,23 +24,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BM1FIR_VERSION', '1.2.1' );
+define( 'BM1FIR_VERSION', '1.2.2' );
 define( 'BM1FIR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BM1FIR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'BM1FIR_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
+//#! pro
 /**
  * Freemius SDK integration (Pro only — not included in WP.org free build).
  */
 if ( file_exists( BM1FIR_PLUGIN_DIR . 'freemius/start.php' ) ) {
-	if ( ! function_exists( 'bm1_fs' ) ) {
-		function bm1_fs() {
-			global $bm1_fs;
+	if ( ! function_exists( 'bm1fir_fs' ) ) {
+		function bm1fir_fs() {
+			global $bm1fir_fs;
 
-			if ( ! isset( $bm1_fs ) ) {
+			if ( ! isset( $bm1fir_fs ) ) {
 				require_once BM1FIR_PLUGIN_DIR . 'freemius/start.php';
 
-				$bm1_fs = fs_dynamic_init( array(
+				$bm1fir_fs = fs_dynamic_init( array(
 					'id'                  => '26225',
 					'slug'                => 'bm1fir',
 					'premium_slug'        => 'bm1fir-premium',
@@ -63,13 +64,13 @@ if ( file_exists( BM1FIR_PLUGIN_DIR . 'freemius/start.php' ) ) {
 				) );
 			}
 
-			return $bm1_fs;
+			return $bm1fir_fs;
 		}
 
-		bm1_fs();
-		do_action( 'bm1_fs_loaded' );
+		bm1fir_fs();
+		do_action( 'bm1fir_fs_loaded' );
 
-		bm1_fs()->add_action( 'after_uninstall', 'bm1fir_cleanup' );
+		bm1fir_fs()->add_action( 'after_uninstall', 'bm1fir_cleanup' );
 	}
 }
 
@@ -78,16 +79,17 @@ function bm1fir_cleanup() {
 	delete_option( 'bm1fir_access_token' );
 	delete_option( 'bm1fir_token_expiry' );
 
-	global $wpdb;
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->query( $wpdb->prepare(
-		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like( '_transient_bm1fir_daily_count_' ) . '%',
-		$wpdb->esc_like( '_transient_timeout_bm1fir_daily_count_' ) . '%'
-	) );
-
 	BM1FIR_Logger::drop_table();
 }
+//#! endpro
+
+/**
+ * Clean up plugin data on uninstall (free version).
+ */
+function bm1fir_uninstall_cleanup() {
+	delete_option( 'bm1fir_enabled' );
+}
+register_uninstall_hook( __FILE__, 'bm1fir_uninstall_cleanup' );
 
 if ( file_exists( BM1FIR_PLUGIN_DIR . 'includes/class-logger__premium_only.php' ) ) {
 	require_once BM1FIR_PLUGIN_DIR . 'includes/class-logger__premium_only.php';
@@ -110,15 +112,15 @@ require_once BM1FIR_PLUGIN_DIR . 'includes/class-replacer.php';
 /**
  * Main plugin class.
  */
-final class BM1_Frontend_Image_Replace {
+final class BM1FIR_Plugin {
 
 	/**
-	 * @var BM1_Frontend_Image_Replace|null
+	 * @var BM1FIR_Plugin|null
 	 */
 	private static $instance = null;
 
 	/**
-	 * @return BM1_Frontend_Image_Replace
+	 * @return BM1FIR_Plugin
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -139,7 +141,7 @@ final class BM1_Frontend_Image_Replace {
 	 * @return bool
 	 */
 	public static function is_pro() {
-		return function_exists( 'bm1_fs' ) && bm1_fs()->is_plan( 'pro' );
+		return function_exists( 'bm1fir_fs' ) && bm1fir_fs()->is_plan( 'pro' );
 	}
 
 	/**
@@ -157,6 +159,7 @@ final class BM1_Frontend_Image_Replace {
 	 * @return bool
 	 */
 	public static function current_user_can_replace() {
+		//#! pro
 		// 1. Valid access token in URL — works independently of bm1fir_enabled (Pro only).
 		if ( self::is_pro() ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Token-based auth, no state change.
@@ -171,8 +174,9 @@ final class BM1_Frontend_Image_Replace {
 				}
 			}
 		}
+		//#! endpro
 
-		// 2. When globally enabled: overlay for everyone.
+		// When globally enabled: overlay for everyone.
 		if ( self::is_enabled() ) {
 			return true;
 		}
@@ -180,31 +184,7 @@ final class BM1_Frontend_Image_Replace {
 		return false;
 	}
 
-	/**
-	 * Get the number of replacements remaining today.
-	 *
-	 * @return int -1 means unlimited (Pro).
-	 */
-	public static function get_remaining_today() {
-		if ( self::is_pro() ) {
-			return -1;
-		}
-
-		$key   = 'bm1fir_daily_count_' . gmdate( 'Y-m-d' );
-		$count = (int) get_transient( $key );
-
-		return max( 0, 3 - $count );
-	}
-
-	/**
-	 * Increment the daily replacement counter.
-	 */
-	public static function increment_daily_count() {
-		$key   = 'bm1fir_daily_count_' . gmdate( 'Y-m-d' );
-		$count = (int) get_transient( $key );
-		set_transient( $key, $count + 1, DAY_IN_SECONDS );
-	}
-
+	//#! pro
 	/**
 	 * Generate a new access token (Pro only).
 	 *
@@ -225,6 +205,7 @@ final class BM1_Frontend_Image_Replace {
 		delete_option( 'bm1fir_access_token' );
 		delete_option( 'bm1fir_token_expiry' );
 	}
+	//#! endpro
 }
 
 register_activation_hook( __FILE__, function () {
@@ -232,4 +213,4 @@ register_activation_hook( __FILE__, function () {
 	BM1FIR_Logger::create_table();
 } );
 
-add_action( 'plugins_loaded', array( 'BM1_Frontend_Image_Replace', 'instance' ) );
+add_action( 'plugins_loaded', array( 'BM1FIR_Plugin', 'instance' ) );

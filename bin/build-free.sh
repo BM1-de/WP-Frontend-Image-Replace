@@ -41,8 +41,9 @@ find "$OUTPUT_DIR" -name '*.patch' -delete
 echo "Removed hidden files and patches."
 
 # Remove premium code blocks (//#! pro ... //#! endpro).
+# Supports both pure comment markers (// #! pro) and PHP template markers (<?php //#! pro ?>).
 find "$OUTPUT_DIR" -type f \( -name '*.php' -o -name '*.js' \) -print0 | \
-  xargs -0 perl -i -0pe 's{^\s*//\s*#!\s*pro\b.*?//\s*#!\s*endpro\s*\n}{}gms'
+  xargs -0 perl -i -0pe 's{^\s*(?:<\?php\s+)?//\s*#!\s*pro\b.*?//\s*#!\s*endpro(?:[^\S\n]*\?>)?[^\S\n]*\n}{}gms'
 echo "Removed premium code blocks."
 
 # Verify: no premium markers or references left.

@@ -25,7 +25,7 @@ class BM1FIR_Logger {
 	 * }
 	 */
 	public static function log_replacement( $data ) {
-		if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
+		if ( ! BM1FIR_Plugin::is_pro() ) {
 			return;
 		}
 

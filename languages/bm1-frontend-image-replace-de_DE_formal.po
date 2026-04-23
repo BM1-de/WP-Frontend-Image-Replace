@@ -4,8 +4,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Frontend Image Replace 1.0.0\n"
-"Report-Msgid-Bugs-To: support@bm1.de\n"
-"POT-Creation-Date: 2026-03-20 00:00+0000\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/bm1-frontend-"
+"image-replace\n"
+"POT-Creation-Date: 2026-04-23T09:33:34+02:00\n"
 "PO-Revision-Date: 2026-03-20 00:00+0000\n"
 "Last-Translator: Phillip Baumgärtner <support@bm1.de>\n"
 "Language-Team: German <support@bm1.de>\n"
@@ -15,312 +16,382 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: includes/class-admin.php
-msgid "Frontend Image Replace"
-msgstr "Frontend Image Replace"
+#. Plugin Name of the plugin
+#: bm1-frontend-image-replace.php includes/class-admin.php:30
+#: includes/class-admin.php:31 includes/class-admin.php:145
+msgid "BM1 Frontend Image Replace"
+msgstr ""
 
-#: includes/class-admin.php
+#. Plugin URI of the plugin
+#: bm1-frontend-image-replace.php
+msgid "https://wp-frontend-image-replace.com"
+msgstr ""
+
+#. Description of the plugin
+#: bm1-frontend-image-replace.php
+msgid ""
+"Upload new images to the WordPress media library directly from the frontend "
+"and swap them into your content. Perfect for replacing demo/placeholder "
+"images during development."
+msgstr ""
+
+#. Author of the plugin
+#: bm1-frontend-image-replace.php
+msgid "Baumgärtner Marketing GmbH"
+msgstr ""
+
+#. Author URI of the plugin
+#: bm1-frontend-image-replace.php
+msgid "https://bm1.de"
+msgstr ""
+
+#: includes/class-admin.php:120
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:151
 msgid "Access link generated successfully."
 msgstr "Zugangslink wurde erfolgreich erstellt."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:158
 msgid "Access link revoked."
 msgstr "Zugangslink wurde widerrufen."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:166
 msgid "Settings saved."
 msgstr "Einstellungen gespeichert."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:177
 msgid "Enable Image Replace"
 msgstr "Bild ersetzen aktivieren"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:182
 msgid "Show the image replace overlay on the frontend"
 msgstr "Bild-ersetzen-Overlay im Frontend anzeigen"
 
-#: includes/class-admin.php
-msgid "When enabled, all visitors will see a replace button when hovering over images."
-msgstr "Wenn aktiviert, wird allen Besuchern beim Hovern über Bilder ein Ersetzen-Button angezeigt."
+#: includes/class-admin.php:185
+msgid ""
+"When enabled, all visitors will see a replace button when hovering over "
+"images."
+msgstr ""
+"Wenn aktiviert, wird allen Besuchern beim Hovern über Bilder ein Ersetzen-"
+"Button angezeigt."
 
-#: includes/class-admin.php
-msgid "Free Plan:"
-msgstr "Free-Plan:"
-
-#: includes/class-admin.php
-msgid "Limited to %1$d image replacements per day. %2$s for unlimited replacements."
-msgstr "Limitiert auf %1$d Bildersetzungen pro Tag. %2$s für unbegrenzte Ersetzungen."
-
-#: includes/class-admin.php
-msgid "Upgrade to Pro"
-msgstr "Auf Pro upgraden"
-
-#: includes/class-admin.php
+#: includes/class-admin.php:199
 msgid "Guest Access Link"
 msgstr "Gastzugangslink"
 
-#: includes/class-admin.php
-msgid "Generate a temporary link that allows anyone to replace images without logging in. Useful for sharing with clients or team members during development."
-msgstr "Erstellen Sie einen temporären Link, mit dem jeder Bilder ersetzen kann, ohne sich anzumelden. Nützlich zum Teilen mit Kunden oder Teammitgliedern während der Entwicklung."
+#: includes/class-admin.php:207
+msgid ""
+"Generate a temporary link that allows anyone to replace images without "
+"logging in. Useful for sharing with clients or team members during "
+"development."
+msgstr ""
+"Erstellen Sie einen temporären Link, mit dem jeder Bilder ersetzen kann, "
+"ohne sich anzumelden. Nützlich zum Teilen mit Kunden oder Teammitgliedern "
+"während der Entwicklung."
 
-#: includes/class-admin.php
-msgid "Guest access links are a Pro feature. %s to share temporary image replace links with clients and team members."
-msgstr "Gastzugangslinks sind eine Pro-Funktion. %s, um temporäre Bild-ersetzen-Links mit Kunden und Teammitgliedern zu teilen."
-
-#: includes/class-admin.php
-msgid "Copied!"
-msgstr "Kopiert!"
-
-#: includes/class-admin.php
-msgid "Copy Link"
-msgstr "Link kopieren"
-
-#: includes/class-admin.php
-msgid "Append ?bm1fir_token=... to any page URL on this site to enable image replace mode."
-msgstr "Hängen Sie ?bm1fir_token=... an jede Seiten-URL dieser Website an, um den Bild-ersetzen-Modus zu aktivieren."
-
-#: includes/class-admin.php
+#. translators: %s: expiry date
+#: includes/class-admin.php:219
+#, php-format
 msgid "Access link active. Expires: %s"
 msgstr "Zugangslink aktiv. Läuft ab: %s"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:223
 msgid "Access link active (no expiry)."
 msgstr "Zugangslink aktiv (kein Ablaufdatum)."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:240
+msgid "Copied!"
+msgstr "Kopiert!"
+
+#: includes/class-admin.php:242
+msgid "Copy Link"
+msgstr "Link kopieren"
+
+#: includes/class-admin.php:246
+msgid ""
+"Append ?bm1fir_token=... to any page URL on this site to enable image "
+"replace mode."
+msgstr ""
+"Hängen Sie ?bm1fir_token=... an jede Seiten-URL dieser Website an, um den "
+"Bild-ersetzen-Modus zu aktivieren."
+
+#: includes/class-admin.php:252
 msgid "The access link has expired."
 msgstr "Der Zugangslink ist abgelaufen."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:256
 msgid "No access link generated yet."
 msgstr "Noch kein Zugangslink erstellt."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:265
 msgid "Expires after:"
 msgstr "Läuft ab nach:"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:268
 msgid "1 day"
 msgstr "1 Tag"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:269
 msgid "7 days"
 msgstr "7 Tage"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:270
 msgid "30 days"
 msgstr "30 Tage"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:271
 msgid "Never"
 msgstr "Nie"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:279
 msgid "Regenerate Access Link"
 msgstr "Zugangslink neu erstellen"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:280
 msgid "Generate Access Link"
 msgstr "Zugangslink erstellen"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:286
 msgid "Revoke"
 msgstr "Widerrufen"
 
-#: includes/class-admin.php
-msgid "How It Works"
-msgstr "So funktioniert es"
+#. translators: %s: upgrade link
+#: includes/class-admin.php:299
+#, php-format
+msgid ""
+"Guest access links are a Pro feature. %s to share temporary image replace "
+"links with clients and team members."
+msgstr ""
+"Gastzugangslinks sind eine Pro-Funktion. %s, um temporäre Bild-ersetzen-"
+"Links mit Kunden und Teammitgliedern zu teilen."
 
-#: includes/class-admin.php
-msgid "Enable the feature above and visit any page on your site."
-msgstr "Aktivieren Sie die Funktion oben und besuchen Sie eine beliebige Seite Ihrer Website."
+#: includes/class-admin.php:300
+msgid "Upgrade to Pro"
+msgstr "Auf Pro upgraden"
 
-#: includes/class-admin.php
-msgid "Hover over any image to see the replace overlay."
-msgstr "Fahren Sie mit der Maus über ein Bild, um das Ersetzen-Overlay zu sehen."
-
-#: includes/class-admin.php
-msgid "Click to select a new image from your computer."
-msgstr "Klicken Sie, um ein neues Bild von Ihrem Computer auszuwählen."
-
-#: includes/class-admin.php
-msgid "The new image is uploaded to the media library and all references in your content are updated."
-msgstr "Das neue Bild wird in die Mediathek hochgeladen und alle Referenzen in Ihren Inhalten werden aktualisiert."
-
-#: includes/class-admin.php
-msgid "The original image remains in the media library and is not deleted."
-msgstr "Das Originalbild bleibt in der Mediathek erhalten und wird nicht gelöscht."
-
-#: includes/class-admin.php
-msgid "For questions or issues with the plugin, we are happy to help."
-msgstr "Bei Fragen oder Problemen mit dem Plugin stehen wir Ihnen gerne zur Verfügung."
-
-#: includes/class-admin.php
-msgid "Send Support Request"
-msgstr "Support-Anfrage senden"
-
-#: includes/class-frontend.php
-msgid "Replace Image"
-msgstr "Bild ersetzen"
-
-#: includes/class-frontend.php
-msgid "Uploading..."
-msgstr "Wird hochgeladen..."
-
-#: includes/class-frontend.php
-msgid "Replaced!"
-msgstr "Ersetzt!"
-
-#: includes/class-frontend.php
-msgid "Error"
-msgstr "Fehler"
-
-#: includes/class-frontend.php
-msgid "Image Replace Mode — hover any image to replace it"
-msgstr "Bild-ersetzen-Modus — fahren Sie über ein Bild, um es zu ersetzen"
-
-#: includes/class-frontend.php
-msgid "This image is not from the media library"
-msgstr "Dieses Bild stammt nicht aus der Mediathek"
-
-#: includes/class-frontend.php
-msgid "Daily limit reached"
-msgstr "Tageslimit erreicht"
-
-#: includes/class-frontend.php
-msgid "replacements remaining today"
-msgstr "Ersetzungen heute verbleibend"
-
-#: includes/class-frontend.php
-msgid "Unlimited replacements with Pro"
-msgstr "Unbegrenzte Ersetzungen mit Pro"
-
-#: includes/class-replacer.php
-msgid "Unauthorized."
-msgstr "Nicht autorisiert."
-
-#: includes/class-replacer.php
-msgid "Daily limit reached. Upgrade to Pro for unlimited replacements."
-msgstr "Tageslimit erreicht. Upgraden Sie auf Pro für unbegrenzte Ersetzungen."
-
-#: includes/class-replacer.php
-msgid "Invalid attachment ID."
-msgstr "Ungültige Anhang-ID."
-
-#: includes/class-replacer.php
-msgid "Attachment not found."
-msgstr "Anhang nicht gefunden."
-
-#: includes/class-replacer.php
-msgid "No file uploaded."
-msgstr "Keine Datei hochgeladen."
-
-#: includes/class-replacer.php
-msgid "Too many uploads. Please wait a moment."
-msgstr "Zu viele Uploads. Bitte warten Sie einen Moment."
-
-#: includes/class-replacer.php
-msgid "File too large. Maximum size is 10 MB."
-msgstr "Datei zu groß. Maximale Größe ist 10 MB."
-
-#: includes/class-replacer.php
-msgid "Only image files (JPG, PNG, GIF, WebP, AVIF) are allowed."
-msgstr "Nur Bilddateien (JPG, PNG, GIF, WebP, AVIF) sind erlaubt."
-
-#: includes/class-replacer.php
-msgid "Upload failed. Please try again."
-msgstr "Upload fehlgeschlagen. Bitte versuchen Sie es erneut."
-
-#: includes/class-admin.php
+#: includes/class-admin.php:310
 msgid "Activate Pro License"
 msgstr "Pro-Lizenz aktivieren"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:315
 msgid "License activated successfully! Please reload the page."
 msgstr "Lizenz erfolgreich aktiviert! Bitte laden Sie die Seite neu."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:330
 msgid "Already have a license key? Enter it below to activate Pro features."
-msgstr "Sie haben bereits einen Lizenzschlüssel? Geben Sie ihn unten ein, um Pro-Funktionen zu aktivieren."
+msgstr ""
+"Sie haben bereits einen Lizenzschlüssel? Geben Sie ihn unten ein, um Pro-"
+"Funktionen zu aktivieren."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:337
 msgid "Activate License"
 msgstr "Lizenz aktivieren"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:343
 msgid "License"
 msgstr "Lizenz"
 
-#: includes/class-admin.php
-msgid "Pro license active."
-msgstr "Pro-Lizenz aktiv."
-
-#: includes/class-admin.php
+#: includes/class-admin.php:348
 msgid "License deactivated."
 msgstr "Lizenz deaktiviert."
 
-#: includes/class-admin.php
-msgid "Deactivate License"
-msgstr "Lizenz deaktivieren"
+#: includes/class-admin.php:354
+msgid "Pro license active."
+msgstr "Pro-Lizenz aktiv."
 
-#: includes/class-admin.php
+#: includes/class-admin.php:358
 msgid "Are you sure you want to deactivate the license?"
 msgstr "Sind Sie sicher, dass Sie die Lizenz deaktivieren möchten?"
 
-#: includes/class-admin.php
-msgid "Frontend Image Replace Log"
-msgstr "Frontend Image Replace – Protokoll"
+#: includes/class-admin.php:359
+msgid "Deactivate License"
+msgstr "Lizenz deaktivieren"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:368
+msgid "How It Works"
+msgstr "So funktioniert es"
+
+#: includes/class-admin.php:370
+msgid "Enable the feature above and visit any page on your site."
+msgstr ""
+"Aktivieren Sie die Funktion oben und besuchen Sie eine beliebige Seite Ihrer "
+"Website."
+
+#: includes/class-admin.php:371
+msgid "Hover over any image to see the replace overlay."
+msgstr ""
+"Fahren Sie mit der Maus über ein Bild, um das Ersetzen-Overlay zu sehen."
+
+#: includes/class-admin.php:372
+msgid "Click to select a new image from your computer."
+msgstr "Klicken Sie, um ein neues Bild von Ihrem Computer auszuwählen."
+
+#: includes/class-admin.php:373
+msgid ""
+"The new image is uploaded to the media library and all references in your "
+"content are updated."
+msgstr ""
+"Das neue Bild wird in die Mediathek hochgeladen und alle Referenzen in Ihren "
+"Inhalten werden aktualisiert."
+
+#: includes/class-admin.php:376
+msgid "The original image remains in the media library and is not deleted."
+msgstr ""
+"Das Originalbild bleibt in der Mediathek erhalten und wird nicht gelöscht."
+
+#. translators: %s: support website URL
+#: includes/class-admin.php:382
+#, php-format
+msgid "Need help? Visit %s"
+msgstr ""
+
+#: includes/class-admin.php:401 includes/class-admin.php:447
+msgid "BM1 Frontend Image Replace Log"
+msgstr ""
+
+#: includes/class-admin.php:402
 msgid "Image Replace Log"
 msgstr "Bild-ersetzen-Protokoll"
 
-#: includes/class-admin.php
+#: includes/class-admin.php:452
 msgid "Log cleared."
 msgstr "Protokoll geleert."
 
-#: includes/class-admin.php
+#. translators: %d: number of removed entries
+#: includes/class-admin.php:463
+#, php-format
 msgid "%d entry removed."
 msgid_plural "%d entries removed."
 msgstr[0] "%d Eintrag entfernt."
 msgstr[1] "%d Einträge entfernt."
 
-#: includes/class-log-list-table.php
+#: includes/class-frontend.php:69
+msgid "Replace Image"
+msgstr "Bild ersetzen"
+
+#: includes/class-frontend.php:70
+msgid "Uploading..."
+msgstr "Wird hochgeladen..."
+
+#: includes/class-frontend.php:71
+msgid "Replaced!"
+msgstr "Ersetzt!"
+
+#: includes/class-frontend.php:72
+msgid "Error"
+msgstr "Fehler"
+
+#: includes/class-frontend.php:73
+msgid "Image Replace Mode — hover any image to replace it"
+msgstr "Bild-ersetzen-Modus — fahren Sie über ein Bild, um es zu ersetzen"
+
+#: includes/class-frontend.php:74
+msgid "This image is not from the media library"
+msgstr "Dieses Bild stammt nicht aus der Mediathek"
+
+#: includes/class-log-list-table__premium_only.php:29
 msgid "Date"
 msgstr "Datum"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:30
 msgid "Page"
 msgstr "Seite"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:31
 msgid "Old Image"
 msgstr "Altes Bild"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:32
 msgid "New Image"
 msgstr "Neues Bild"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:33
 msgid "User"
 msgstr "Benutzer"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:102
 msgid "(no title)"
 msgstr "(kein Titel)"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:146
 msgid "Remove selected"
 msgstr "Ausgewählte entfernen"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:158
 msgid "Clear log"
 msgstr "Protokoll leeren"
 
-#: includes/class-log-list-table.php
+#: includes/class-log-list-table__premium_only.php:162
 msgid "Remove all log entries?"
 msgstr "Alle Protokolleinträge entfernen?"
+
+#: includes/class-replacer.php:68 includes/class-replacer.php:185
+msgid "Unauthorized."
+msgstr "Nicht autorisiert."
+
+#: includes/class-replacer.php:81
+msgid "Invalid attachment ID."
+msgstr "Ungültige Anhang-ID."
+
+#: includes/class-replacer.php:86
+msgid "Attachment not found."
+msgstr "Anhang nicht gefunden."
+
+#: includes/class-replacer.php:91
+msgid "No file uploaded."
+msgstr "Keine Datei hochgeladen."
+
+#: includes/class-replacer.php:100
+msgid "Too many uploads. Please wait a moment."
+msgstr "Zu viele Uploads. Bitte warten Sie einen Moment."
+
+#: includes/class-replacer.php:109
+msgid "File too large. Maximum size is 10 MB."
+msgstr "Datei zu groß. Maximale Größe ist 10 MB."
+
+#: includes/class-replacer.php:118
+msgid "Only image files (JPG, PNG, GIF, WebP, AVIF) are allowed."
+msgstr "Nur Bilddateien (JPG, PNG, GIF, WebP, AVIF) sind erlaubt."
+
+#: includes/class-replacer.php:130
+msgid "Upload failed. Please try again."
+msgstr "Upload fehlgeschlagen. Bitte versuchen Sie es erneut."
+
+#~ msgid "Frontend Image Replace"
+#~ msgstr "Frontend Image Replace"
+
+#~ msgid "Free Plan:"
+#~ msgstr "Free-Plan:"
+
+#~ msgid ""
+#~ "Limited to %1$d image replacements per day. %2$s for unlimited "
+#~ "replacements."
+#~ msgstr ""
+#~ "Limitiert auf %1$d Bildersetzungen pro Tag. %2$s für unbegrenzte "
+#~ "Ersetzungen."
+
+#~ msgid "For questions or issues with the plugin, we are happy to help."
+#~ msgstr ""
+#~ "Bei Fragen oder Problemen mit dem Plugin stehen wir Ihnen gerne zur "
+#~ "Verfügung."
+
+#~ msgid "Send Support Request"
+#~ msgstr "Support-Anfrage senden"
+
+#~ msgid "Daily limit reached"
+#~ msgstr "Tageslimit erreicht"
+
+#~ msgid "replacements remaining today"
+#~ msgstr "Ersetzungen heute verbleibend"
+
+#~ msgid "Unlimited replacements with Pro"
+#~ msgstr "Unbegrenzte Ersetzungen mit Pro"
+
+#~ msgid "Daily limit reached. Upgrade to Pro for unlimited replacements."
+#~ msgstr ""
+#~ "Tageslimit erreicht. Upgraden Sie auf Pro für unbegrenzte Ersetzungen."
+
+#~ msgid "Frontend Image Replace Log"
+#~ msgstr "Frontend Image Replace – Protokoll"

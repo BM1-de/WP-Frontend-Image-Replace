@@ -4,7 +4,7 @@ Tags: images, replace, frontend, media, development
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,9 +37,8 @@ Perfect for:
 * Lightweight — no jQuery dependency, minimal footprint
 * Translation-ready (including German)
 
-**Pro features:**
+**Pro features (available at [wp-frontend-image-replace.com](https://wp-frontend-image-replace.com)):**
 
-* Unlimited image replacements (free: 3 per day)
 * Guest access via shareable temporary links (with expiry)
 * Activity log for all image replacements (Tools > Image Replace Log)
 * Priority support
@@ -80,10 +79,6 @@ The plugin works best with the WordPress block editor and classic editor. Page b
 
 Only images that are in the WordPress media library can be replaced. The plugin detects media library images by their CSS classes (e.g., `wp-image-123`) or by resolving their URL to an attachment ID. External images, SVGs, and very small images (under 50px) are excluded.
 
-= What is the daily limit? =
-
-Free users can replace up to 3 images per day. Upgrade to Pro for unlimited replacements.
-
 == Screenshots ==
 
 1. Hover overlay on a replaceable image
@@ -91,6 +86,13 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 3. Activity log showing all image replacements (Pro)
 
 == Changelog ==
+
+= 1.2.2 =
+* Remove daily replacement limit — image replacement is now unlimited for all users
+* Remove unnecessary wp-admin/includes/media.php include
+* Unify naming prefix to bm1fir across all global functions, variables, hooks and classes
+* Wrap Pro-only code (guest tokens, license management, activity log) in build markers
+* Add register_uninstall_hook for free version cleanup
 
 = 1.2.1 =
 * Fix Freemius is_premium flag for WordPress.org free build
@@ -119,12 +121,15 @@ Free users can replace up to 3 images per day. Upgrade to Pro for unlimited repl
 
 = 1.0.0 =
 * First stable release
-* Freemium model: 3 replacements/day (Free), unlimited (Pro)
+* Initial release with Free and Pro plans
 * Guest access links (Pro feature)
 * Gutenberg and Classic editor support
 * Rate limiting and security hardening
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+Unlimited image replacements for all users. Naming prefix unified. Pro-only code properly separated.
 
 = 1.2.1 =
 Fixes WordPress.org plugin review issues: input sanitization, output escaping, Freemius compliance.

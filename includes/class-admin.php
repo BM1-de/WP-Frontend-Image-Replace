@@ -13,11 +13,13 @@ class BM1FIR_Admin {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
-		add_action( 'admin_menu', array( $this, 'add_log_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_init', array( $this, 'handle_actions' ) );
-		add_action( 'admin_init', array( $this, 'handle_log_actions' ) );
 		add_filter( 'plugin_action_links_' . BM1FIR_PLUGIN_BASENAME, array( $this, 'add_settings_link' ) );
+		//#! pro
+		add_action( 'admin_menu', array( $this, 'add_log_page' ) );
+		add_action( 'admin_init', array( $this, 'handle_log_actions' ) );
+		//#! endpro
 	}
 
 	/**
@@ -54,10 +56,11 @@ class BM1FIR_Admin {
 			return;
 		}
 
+		//#! pro
 		// Deactivate license key.
 		if ( isset( $_POST['bm1fir_deactivate_license'] ) && check_admin_referer( 'bm1fir_license_action' ) ) {
-			if ( function_exists( 'bm1_fs' ) ) {
-				bm1_fs()->delete_account_event();
+			if ( function_exists( 'bm1fir_fs' ) ) {
+				bm1fir_fs()->delete_account_event();
 			}
 			wp_safe_redirect( admin_url( 'options-general.php?page=bm1fir-settings&license_deactivated=1' ) );
 			exit;
@@ -66,9 +69,9 @@ class BM1FIR_Admin {
 		// Activate license key.
 		if ( isset( $_POST['bm1fir_activate_license'] ) && check_admin_referer( 'bm1fir_license_action' ) ) {
 			$license_key = isset( $_POST['bm1fir_license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['bm1fir_license_key'] ) ) : '';
-			if ( ! empty( $license_key ) && function_exists( 'bm1_fs' ) ) {
+			if ( ! empty( $license_key ) && function_exists( 'bm1fir_fs' ) ) {
 				try {
-					$result = bm1_fs()->activate_migrated_license( $license_key );
+					$result = bm1fir_fs()->activate_migrated_license( $license_key );
 					if ( is_object( $result ) && isset( $result->error ) ) {
 						set_transient( 'bm1fir_license_error', $result->error, 60 );
 					} else {
@@ -84,12 +87,12 @@ class BM1FIR_Admin {
 
 		// Generate token (Pro only).
 		if ( isset( $_POST['bm1fir_generate_token'] ) && check_admin_referer( 'bm1fir_token_action' ) ) {
-			if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
+			if ( ! BM1FIR_Plugin::is_pro() ) {
 				wp_safe_redirect( admin_url( 'options-general.php?page=bm1fir-settings' ) );
 				exit;
 			}
 			$days = isset( $_POST['bm1fir_token_days'] ) ? absint( $_POST['bm1fir_token_days'] ) : 7;
-			$token = BM1_Frontend_Image_Replace::generate_token( $days );
+			$token = BM1FIR_Plugin::generate_token( $days );
 			set_transient( 'bm1fir_new_token', $token, 60 );
 			wp_safe_redirect( admin_url( 'options-general.php?page=bm1fir-settings&token_generated=1' ) );
 			exit;
@@ -97,10 +100,11 @@ class BM1FIR_Admin {
 
 		// Revoke token.
 		if ( isset( $_POST['bm1fir_revoke_token'] ) && check_admin_referer( 'bm1fir_token_action' ) ) {
-			BM1_Frontend_Image_Replace::revoke_token();
+			BM1FIR_Plugin::revoke_token();
 			wp_safe_redirect( admin_url( 'options-general.php?page=bm1fir-settings&token_revoked=1' ) );
 			exit;
 		}
+		//#! endpro
 	}
 
 	/**
@@ -123,8 +127,9 @@ class BM1FIR_Admin {
 	 * Render the settings page.
 	 */
 	public function render_settings_page() {
-		$is_enabled   = BM1_Frontend_Image_Replace::is_enabled();
-		$is_pro       = BM1_Frontend_Image_Replace::is_pro();
+		$is_enabled = BM1FIR_Plugin::is_enabled();
+		//#! pro
+		$is_pro       = BM1FIR_Plugin::is_pro();
 		$stored_token = get_option( 'bm1fir_access_token' );
 		$token_expiry = get_option( 'bm1fir_token_expiry', 0 );
 		$new_token    = get_transient( 'bm1fir_new_token' );
@@ -134,10 +139,12 @@ class BM1FIR_Admin {
 		}
 
 		$token_expired = ! empty( $token_expiry ) && time() >= (int) $token_expiry;
+		//#! endpro
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'BM1 Frontend Image Replace', 'bm1-frontend-image-replace' ); ?></h1>
 
+			<?php //#! pro ?>
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param for admin notice display. ?>
 			<?php if ( isset( $_GET['token_generated'] ) ) : ?>
 				<div class="notice notice-success is-dismissible">
@@ -151,6 +158,7 @@ class BM1FIR_Admin {
 					<p><?php esc_html_e( 'Access link revoked.', 'bm1-frontend-image-replace' ); ?></p>
 				</div>
 			<?php endif; ?>
+			<?php //#! endpro ?>
 
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param for admin notice display. ?>
 			<?php if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) : ?>
@@ -180,24 +188,10 @@ class BM1FIR_Admin {
 					</tr>
 				</table>
 
-				<?php if ( ! $is_pro ) : ?>
-				<div class="notice notice-info inline" style="margin: 10px 0 20px;">
-					<p>
-						<?php
-						$upgrade_url = function_exists( 'bm1_fs' ) ? esc_url( bm1_fs()->get_upgrade_url() ) : 'https://wp-frontend-image-replace.com';
-						printf(
-							/* translators: %s: upgrade link */
-							esc_html__( 'Upgrade to Pro for guest access links and activity log. %s', 'bm1-frontend-image-replace' ),
-							'<a href="' . esc_url( $upgrade_url ) . '">' . esc_html__( 'Upgrade to Pro', 'bm1-frontend-image-replace' ) . '</a>'
-						);
-						?>
-					</p>
-				</div>
-				<?php endif; ?>
-
 				<?php submit_button(); ?>
 			</form>
 
+			<?php //#! pro ?>
 			<hr>
 
 			<!-- Access Link -->
@@ -299,7 +293,7 @@ class BM1FIR_Admin {
 				<div class="notice notice-warning inline" style="margin: 15px 0;">
 					<p>
 						<?php
-						$upgrade_url = function_exists( 'bm1_fs' ) ? esc_url( bm1_fs()->get_upgrade_url() ) : 'https://wp-frontend-image-replace.com';
+						$upgrade_url = function_exists( 'bm1fir_fs' ) ? esc_url( bm1fir_fs()->get_upgrade_url() ) : 'https://wp-frontend-image-replace.com';
 						printf(
 							/* translators: %s: upgrade link */
 							esc_html__( 'Guest access links are a Pro feature. %s to share temporary image replace links with clients and team members.', 'bm1-frontend-image-replace' ),
@@ -366,6 +360,7 @@ class BM1FIR_Admin {
 				</button>
 			</form>
 			<?php endif; ?>
+			<?php //#! endpro ?>
 
 			<hr>
 
@@ -393,11 +388,12 @@ class BM1FIR_Admin {
 		<?php
 	}
 
+	//#! pro
 	/**
 	 * Register the log page under Tools.
 	 */
 	public function add_log_page() {
-		if ( ! BM1_Frontend_Image_Replace::is_pro() ) {
+		if ( ! BM1FIR_Plugin::is_pro() ) {
 			return;
 		}
 
@@ -480,4 +476,5 @@ class BM1FIR_Admin {
 		</div>
 		<?php
 	}
+	//#! endpro
 }
